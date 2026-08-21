@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Sidebar,
   SidebarContent,
@@ -9,20 +9,26 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
 const navItems = [
-  { title: "Leaderboard", href: "/" },
-  { title: "About", href: "/about" },
-  { title: "Rules", href: "/rules" },
-]
+  { title: 'Leaderboard', href: '/' },
+  { title: 'About', href: '/about' },
+  { title: 'Rules', href: '/rules' },
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const { isMobile } = useSidebar();
+
+  // Desktop nav lives in the header instead — Sidebar's desktop variant
+  // reserves layout width even when visually hidden, so skip mounting it.
+  if (!isMobile) return null;
 
   return (
-    <Sidebar className="md:hidden">
+    <Sidebar>
       <SidebarHeader className="p-4">
         <Link href="/" className="font-bold text-xl">
           outbid.lol
@@ -34,12 +40,8 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className={cn(
-                  pathname === item.href && "bg-muted"
-                )}
-                render={
-                  <Link href={item.href} />
-                }
+                className={cn(pathname === item.href && 'bg-muted')}
+                render={<Link href={item.href} />}
               >
                 {item.title}
               </SidebarMenuButton>
@@ -48,5 +50,5 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

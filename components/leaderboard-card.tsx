@@ -1,50 +1,50 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
-import { Card } from "@/components/ui/card"
-import { Clock, MousePointerClick } from "lucide-react"
-import { useIsMobile } from "@/hooks/use-mobile"
-import type { LeaderboardItem, MetaData } from "@/lib/leaderboard-data"
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { Card } from '@/components/ui/card';
+import { Clock, MousePointerClick } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import type { LeaderboardItem, MetaData } from '@/lib/leaderboard-data';
 
 function getRankStyle(rank: number) {
-  if (rank === 1) return "bg-amber-500/10 text-amber-600 ring-2 ring-amber-500/30"
-  if (rank === 2) return "bg-gray-400/10 text-gray-500 ring-2 ring-gray-400/30"
-  if (rank === 3) return "bg-orange-600/10 text-orange-700 ring-2 ring-orange-600/30"
-  return "bg-muted text-muted-foreground"
+  if (rank === 1) return 'bg-amber-500/10 text-amber-600 ring-2 ring-amber-500/30';
+  if (rank === 2) return 'bg-gray-400/10 text-gray-500 ring-2 ring-gray-400/30';
+  if (rank === 3) return 'bg-orange-600/10 text-orange-700 ring-2 ring-orange-600/30';
+  return 'bg-muted text-muted-foreground';
 }
 
 function formatBid(amount: number) {
-  return `$${amount.toLocaleString()}`
+  return `$${amount.toLocaleString()}`;
 }
 
 interface LeaderboardCardProps {
-  item: LeaderboardItem
-  onClaimClick: (rank: number, bid: number) => void
+  item: LeaderboardItem;
+  onClaimClick: (rank: number, bid: number) => void;
 }
 
 export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
-  const [meta, setMeta] = useState<MetaData | null>(null)
-  const [isHovered, setIsHovered] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isMobile = useIsMobile()
+  const [meta, setMeta] = useState<MetaData | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchMeta = async () => {
       try {
-        const res = await fetch(`/api/fetch-meta?url=${encodeURIComponent(item.url)}`)
+        const res = await fetch(`/api/fetch-meta?url=${encodeURIComponent(item.url)}`);
         if (res.ok) {
-          const data = await res.json()
-          setMeta(data)
+          const data = await res.json();
+          setMeta(data);
         }
       } catch {}
-    }
-    fetchMeta()
-  }, [item.url])
+    };
+    fetchMeta();
+  }, [item.url]);
 
-  const title = meta?.title || item.name
-  const description = meta?.description || ""
-  const favicon = meta?.favicon || `https://www.google.com/s2/favicons?domain=${item.name}&sz=32`
+  const title = meta?.title || item.name;
+  const description = meta?.description || '';
+  const favicon = meta?.favicon || `https://www.google.com/s2/favicons?domain=${item.name}&sz=32`;
 
   if (isMobile) {
     return (
@@ -53,11 +53,13 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group overflow-hidden">
-          <Card className="p-3 transition-colors hover:bg-muted/50 overflow-hidden border">
+        <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group">
+          <Card className="p-3 transition-colors hover:bg-muted/50">
             <div className="flex gap-3">
               <div className="flex flex-col items-center gap-1">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${getRankStyle(item.rank)}`}>
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${getRankStyle(item.rank)}`}
+                >
                   #{item.rank}
                 </div>
                 <Image
@@ -91,15 +93,18 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
             </div>
           </Card>
         </a>
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out -mt-px ${isHovered ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'}`}>
-          <div className="flex items-center justify-center bg-primary/10 text-primary text-sm font-medium cursor-pointer border border-primary/60 border-t-0 rounded-b-lg py-3"
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out -mt-px ${isHovered ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'}`}
+        >
+          <div
+            className="flex items-center justify-center bg-primary/10 text-primary text-sm font-medium cursor-pointer border border-primary/60 border-t-0 rounded-b-lg py-3"
             onClick={() => onClaimClick(item.rank, item.bid + 1)}
           >
             Claim this listing for {formatBid(item.bid + 1)}
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,10 +113,12 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group overflow-hidden">
-        <Card className="p-4 transition-colors hover:bg-muted/50 overflow-hidden border">
+      <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group">
+        <Card className="p-4 transition-colors hover:bg-muted/50">
           <div className="flex items-center gap-3">
-            <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${getRankStyle(item.rank)}`}>
+            <div
+              className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${getRankStyle(item.rank)}`}
+            >
               #{item.rank}
             </div>
             <Image
@@ -144,13 +151,16 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
           </div>
         </Card>
       </a>
-      <div className={`overflow-hidden transition-all duration-300 ease-in-out -mt-px ${isHovered ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="flex items-center justify-center bg-primary/10 text-primary text-sm font-medium cursor-pointer border border-primary/60 border-t-0 rounded-b-lg py-3"
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out -mt-px ${isHovered ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <div
+          className="flex items-center justify-center bg-primary/10 text-primary text-sm font-medium cursor-pointer border border-primary/60 border-t-0 rounded-b-lg py-3"
           onClick={() => onClaimClick(item.rank, item.bid + 1)}
         >
           Claim this listing for {formatBid(item.bid + 1)}
         </div>
       </div>
     </div>
-  )
+  );
 }

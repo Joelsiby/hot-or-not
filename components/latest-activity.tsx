@@ -1,31 +1,31 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { LatestActivitySkeleton } from "@/components/latest-activity-skeleton"
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { LatestActivitySkeleton } from '@/components/latest-activity-skeleton';
 
 const latestActivity = [
-  { name: "nippy.host", rank: 132, amount: "$14", time: "just now" },
-  { name: "maltacasino.se", rank: 169, amount: "$7", time: "just now" },
-  { name: "jobfast.co", rank: 233, amount: "$5", time: "2 minutes ago" },
-  { name: "outrank.so", rank: 1, amount: "$12,052", time: "3 minutes ago" },
-  { name: "aiapply.co", rank: 131, amount: "$14", time: "4 minutes ago" },
-]
+  { name: 'nippy.host', rank: 132, amount: '$14', time: 'just now' },
+  { name: 'maltacasino.se', rank: 169, amount: '$7', time: 'just now' },
+  { name: 'jobfast.co', rank: 233, amount: '$5', time: '2 minutes ago' },
+  { name: 'outrank.so', rank: 1, amount: '$12,052', time: '3 minutes ago' },
+  { name: 'aiapply.co', rank: 131, amount: '$14', time: '4 minutes ago' },
+];
 
 export function LatestActivity() {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500)
-    return () => clearTimeout(timer)
-  }, [])
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  if (isLoading) return <LatestActivitySkeleton />
+  if (isLoading) return <LatestActivitySkeleton />;
 
   return (
-    <Card className="overflow-hidden border">
+    <Card>
       <CardHeader>
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <span className="relative flex size-1.5">
@@ -61,5 +61,5 @@ export function LatestActivity() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,32 +1,32 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Flame } from "lucide-react"
-import { TrendingSkeleton } from "@/components/trending-skeleton"
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Flame } from 'lucide-react';
+import { TrendingSkeleton } from '@/components/trending-skeleton';
 
 const trendingItems = [
-  { name: "outrank.so", clicks: "869 clicks/h" },
-  { name: "orynth.dev", clicks: "671 clicks/h" },
-  { name: "shows.farm", clicks: "288 clicks/h" },
-  { name: "foundrlist.com", clicks: "277 clicks/h" },
-  { name: "redreplier.com", clicks: "265 clicks/h" },
-]
+  { name: 'outrank.so', clicks: '869 clicks/h' },
+  { name: 'orynth.dev', clicks: '671 clicks/h' },
+  { name: 'shows.farm', clicks: '288 clicks/h' },
+  { name: 'foundrlist.com', clicks: '277 clicks/h' },
+  { name: 'redreplier.com', clicks: '265 clicks/h' },
+];
 
 export function TrendingSection() {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500)
-    return () => clearTimeout(timer)
-  }, [])
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  if (isLoading) return <TrendingSkeleton />
+  if (isLoading) return <TrendingSkeleton />;
 
   return (
-    <Card className="overflow-hidden border">
+    <Card>
       <CardHeader>
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Flame className="h-4 w-4 text-muted-foreground" />
@@ -56,5 +56,5 @@ export function TrendingSection() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
