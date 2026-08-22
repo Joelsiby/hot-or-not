@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { polar } from '@/lib/polar';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
+// Statement descriptor: Polar is a Merchant of Record, so the billing descriptor
+// shown on credit card statements is configured in your Polar dashboard under
+// Organization Settings > Statement Descriptor. Set it to something recognisable
+// like "OUTBID" or "OUTBID*LISTING" so customers don't dispute the charge.
+
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const url: string | undefined = body?.url;
@@ -51,7 +56,12 @@ export async function POST(request: NextRequest) {
       [productId]: [{ amountType: 'fixed', priceAmount: amountCents, priceCurrency: 'usd' }],
     },
     successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/?claimed=1`,
-    metadata: { url, name: entryName, amountCents: String(amountCents) },
+    metadata: {
+      url,
+      name: entryName,
+      amountCents: String(amountCents),
+      description: `Outbid listing: ${entryName}`,
+    },
   });
 
   const { error } = await supabase.from('bids').insert({

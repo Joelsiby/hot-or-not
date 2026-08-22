@@ -104,9 +104,9 @@ export default function FriendsPage() {
               {friends.map((friend) => (
                 <a
                   key={friend.name}
-                  href={`https://${friend.name}`}
+                  href={`https://${friend.name}?utm_source=outbid&utm_medium=friends&utm_campaign=reciprocal`}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="sponsored noopener noreferrer"
                   className="group"
                 >
                   <Card className="p-4 h-full transition-colors hover:bg-muted/50">

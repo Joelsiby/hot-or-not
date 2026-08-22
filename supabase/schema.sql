@@ -32,3 +32,12 @@ create index if not exists bids_entry_url_idx on bids (entry_url);
 -- select policy on leaderboard_entries.
 alter table leaderboard_entries enable row level security;
 alter table bids enable row level security;
+
+create or replace function increment_clicks(entry_url text)
+returns void as $$
+begin
+  update leaderboard_entries
+  set clicks = clicks + 1
+  where url = entry_url;
+end;
+$$ language plpgsql;

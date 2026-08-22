@@ -46,6 +46,16 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
   const description = meta?.description || '';
   const favicon = meta?.favicon || `https://www.google.com/s2/favicons?domain=${item.name}&sz=32`;
 
+  const href = `${item.url}${item.url.includes('?') ? '&' : '?'}utm_source=outbid&utm_medium=leaderboard&utm_campaign=listings`;
+
+  const handleClick = () => {
+    fetch('/api/click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: item.url }),
+    }).catch(() => {});
+  };
+
   if (isMobile) {
     return (
       <div
@@ -53,7 +63,7 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group">
+        <a href={href} target="_blank" rel="sponsored noopener noreferrer" className="block group" onClick={handleClick}>
           <Card className="p-3 transition-colors hover:bg-muted/50">
             <div className="flex gap-3">
               <div className="flex flex-col items-center gap-1">
@@ -113,7 +123,7 @@ export function LeaderboardCard({ item, onClaimClick }: LeaderboardCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <a href={item.url} target="_blank" rel="noopener noreferrer" className="block group">
+      <a href={href} target="_blank" rel="sponsored noopener noreferrer" className="block group" onClick={handleClick}>
         <Card className="p-4 transition-colors hover:bg-muted/50">
           <div className="flex items-center gap-3">
             <div
