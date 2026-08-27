@@ -55,7 +55,7 @@ function resizeImage(file: File, maxDimension: number, quality: number): Promise
 // optionally attach an image, then confirm the claim price and username in
 // the modal before it actually posts.
 export function CommentComposer({ movieSlug, comments, onPosted }: CommentComposerProps) {
-  const [side, setSide] = useState<Side>('hot');
+  const [side, setSide] = useState<Side>('not');
   const [body, setBody] = useState('');
   // Remember the username on this browser so returning fans don't retype it.
   const [username, setUsername] = useState(getSavedUsername);

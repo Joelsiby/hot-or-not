@@ -134,7 +134,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   return (
     <div className="rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-3 text-sm font-semibold">
-        <span className="text-sky-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
+        <span className="text-red-600 shrink-0">🔥 {formatINR(notPaise)}</span>
         <span
           key={lineIndex}
           className={cn(
@@ -150,12 +150,12 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
         >
           {currentLine}
         </span>
-        <span className="text-red-600 shrink-0">🔥 {formatINR(notPaise)}</span>
+        <span className="text-sky-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
       </div>
-      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-red-500/20">
+      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sky-500/20">
         <div
-          className="h-full rounded-full bg-sky-500 transition-all duration-500"
-          style={{ width: `${hotPct}%` }}
+          className="h-full rounded-full bg-red-500 transition-all duration-500"
+          style={{ width: `${100 - hotPct}%` }}
         />
       </div>
     </div>

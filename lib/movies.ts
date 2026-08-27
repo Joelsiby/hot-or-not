@@ -13,13 +13,11 @@ export interface Movie {
 // selection on load.
 export const movies: Movie[] = [
   { slug: 'toxic', title: 'Toxic', posterEmoji: '🔥', bannerUrl: '/banners/banner.jpg' },
-  // "Kalki 2" isn't an official title yet — this is Kalki 2898 AD (2024),
-  // the closest real released film.
-  { slug: 'kalki-2', title: 'Kalki 2', posterEmoji: '🪐', bannerUrl: '/banners/kalki-2898-ad.jpg' },
-  // Pushpa 3: The Rampage hasn't released — no real poster exists yet
-  // (only a generic franchise logo), so this stays on the emoji rather
-  // than use a mismatched image.
-  { slug: 'pushpa-3', title: 'Pushpa 3', posterEmoji: '🌿' },
+  // Ramayana: Part 1 (Ranbir Kapoor, Yash, Sai Pallavi) — Nitesh Tiwari's
+  // two-part epic, releasing Diwali 2026.
+  { slug: 'ramayana-part-1', title: 'Ramayana: Part 1', posterEmoji: '🏹', bannerUrl: '/banners/ramayana-part-1.jpg' },
+  // King (Shah Rukh Khan) — releasing December 24, 2026.
+  { slug: 'king', title: 'King', posterEmoji: '👑', bannerUrl: '/banners/king-2026.jpg' },
   // "Dacoit" here is Dacoit: A Love Story (2026).
   { slug: 'dacoit', title: 'Dacoit', posterEmoji: '🔫', bannerUrl: '/banners/dacoit.jpg' },
 ];
