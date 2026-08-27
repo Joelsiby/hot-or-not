@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import type { Comment, Side } from '@/lib/comments-data';
 
 const USERNAME_STORAGE_KEY = 'hot-or-not:username';
-const MAX_CLAIM_PAISE = 100 * BASE_PRICE_PAISE; // ₹10,000 ceiling on the price stepper
+const MAX_CLAIM_PAISE = 100 * BASE_PRICE_PAISE; // ₹2,000 ceiling on the price stepper
 
 function getSavedUsername() {
   try {

@@ -2,7 +2,7 @@
 
 Based on the [Outbid Template](https://github.com/shadcn-labs/outbid-template).
 
-A movie fan battleground built with Next.js and shadcn/ui. Pick a movie from the list, then argue for it in the **Hot** column or against it in the **Not** column. Posting a take is free; upvoting one costs a flat ₹100 and pushes it up its column — the meter above each movie shows, in real money, which side is winning.
+A movie fan battleground built with Next.js and shadcn/ui. Pick a movie from the list, then argue for it in the **Hot** column or against it in the **Not** column. Posting a take is free; upvoting one costs a flat ₹20 and pushes it up its column — the meter above each movie shows, in real money, which side is winning.
 
 This repo is meant to be used as a **template**: clone it, swap in your own movies and branding, and ship your own version.
 
@@ -14,7 +14,7 @@ This repo is meant to be used as a **template**: clone it, swap in your own movi
 - [shadcn/ui](https://ui.shadcn.com/) components (in `components/ui`)
 - [Supabase](https://supabase.com) (Postgres + Storage) — comment storage and image uploads
 - [Upstash Redis](https://upstash.com) — caches each movie's comment thread
-- [Polar](https://polar.sh) — checkout for paid upvotes (₹100 fixed price)
+- [Polar](https://polar.sh) — checkout for paid upvotes (₹20 fixed price)
 - [Umami](https://umami.is) — analytics
 - TypeScript
 
@@ -46,8 +46,8 @@ app/
   api/
     comments/route.ts               # GET: comments for a movie · POST: create a comment (free)
     comments/upload-image/route.ts  # POST: uploads a comment's full-size image to Supabase Storage
-    upvote/route.ts                 # POST: creates a ₹100 Polar checkout for one comment
-    webhooks/polar/route.ts         # Polar order.paid webhook -> increments upvotes, busts cache
+    upvote/route.ts                 # POST: adds the ₹20 base price to a comment's total (placeholder — no real charge yet, see note below)
+    webhooks/polar/route.ts         # Polar order.paid webhook — currently dormant, nothing creates a checkout yet
 components/
   ui/                    # shadcn/ui primitives (Button, Card, Sheet, ...)
   header.tsx, footer.tsx
@@ -63,7 +63,7 @@ lib/
   movies.ts              # static movie list (slug, title, emoji)
   comments-data.ts       # types + static seed data (used until Supabase is configured)
   comments.ts            # cache-aside read (Redis) + cache invalidation, per movie
-  constants.ts           # BASE_PRICE_PAISE (₹100) + INR formatting
+  constants.ts           # BASE_PRICE_PAISE (₹20) + INR formatting
   supabase/server.ts     # service-role Supabase client (server-only)
   supabase/storage.ts    # uploads a comment image to the `comment-images` bucket
   redis.ts               # Upstash Redis client
@@ -113,21 +113,23 @@ cp .env.example .env.local
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | For live data | Upstash Redis REST credentials, used to cache each movie's comment thread. |
 | `POLAR_ACCESS_TOKEN` | For checkout | Polar organization access token. |
 | `POLAR_WEBHOOK_SECRET` | For checkout | Secret for verifying incoming Polar webhooks. |
-| `POLAR_PRODUCT_ID` | For checkout | The product used to represent "upvote a comment" (₹100 fixed price). |
+| `POLAR_PRODUCT_ID` | For checkout | The product used to represent "upvote a comment" (₹20 fixed price). |
 | `POLAR_SERVER` | No | `sandbox` (default) or `production`. |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | No | Enables [Umami](https://umami.is) analytics. Leave unset to disable tracking entirely (default). |
 | `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | No | Only needed for a self-hosted Umami instance; defaults to Umami Cloud's script. |
 
-Until the Supabase/Redis/Polar variables are set, the app runs fine off the static seed data in `lib/comments-data.ts` and the "Post" / upvote buttons will surface the API's error response — nothing crashes, it just isn't wired to a real backend yet.
+Until the Supabase/Redis variables are set, the app runs fine off the static seed data in `lib/comments-data.ts` and the "Post" / upvote buttons will surface the API's error response — nothing crashes, it just isn't wired to a real backend yet.
+
+**Posting and upvoting don't collect a real payment yet.** Both the post-confirm and upvote-confirm modals show a price and require agreeing to the Terms, but confirming just writes that amount straight onto the comment — `app/api/comments/route.ts` and `app/api/upvote/route.ts` both say so in a comment at the top. The Polar variables below and `app/api/webhooks/polar/route.ts` are wired up and ready for when a real charge gets hooked to those confirm buttons, but right now they're unused. Don't point this at a public, adversarial audience before that's done — anyone can currently post at any rank or upvote for free.
 
 ## Backend setup (Supabase + Redis + Polar)
 
-The mechanic is: read a movie's comment thread often (cheap, cached), write to it often too (posting is free), but only a paid upvote changes ranking or the vote meter. That maps to Postgres for the source of truth, Redis in front of it for reads, Supabase Storage for images, and Polar handling the ₹100 charge.
+The mechanic is: read a movie's comment thread often (cheap, cached), write to it often too (posting is free), but only a paid upvote changes ranking or the vote meter. That maps to Postgres for the source of truth, Redis in front of it for reads, Supabase Storage for images, and Polar handling the ₹20 charge.
 
 **1. Supabase (Postgres + Storage)**
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Run `supabase/schema.sql` against it via the **SQL Editor** (paste the whole file, Run). This creates `comments` (one row per posted take) and `upvote_payments` (one row per upvote checkout attempt, including who paid and when it cleared). Project API keys can't run DDL, so this step has to go through the SQL Editor or `supabase db push` with the CLI — not a route handler.
+2. Run `supabase/schema.sql` against it via the **SQL Editor** (paste the whole file, Run). This creates `comments` (one row per posted take — the only table currently read/written) and `upvote_payments` (a payment ledger, currently unused until real checkout is reactivated — see the note above). It also grants `service_role` the table/function privileges the newer `sb_secret_...` key format doesn't inherit automatically; without those grants every query 403s with "permission denied for table comments". Project API keys can't run DDL, so this step has to go through the SQL Editor or `supabase db push` with the CLI — not a route handler.
 3. In the Storage tab, create a **public** bucket named `comment-images` — full-size uploads go here; a tiny thumbnail is stored inline on the `comments` row instead, so cards render instantly and only fetch the full image on hover.
 4. Copy the project URL and the **service role** (or newer **secret**) key from Project Settings → API into `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (classic keys) or `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SECRET_KEY` (newer `sb_publishable_...`/`sb_secret_...` keys) — either naming works. This key is only ever used server-side, in route handlers.
 
@@ -135,14 +137,16 @@ The mechanic is: read a movie's comment thread often (cheap, cached), write to i
 
 1. Create a database at [console.upstash.com](https://console.upstash.com) (or use the Vercel integration, which sets the env vars for you automatically).
 2. Copy the REST URL and token into `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`.
-3. `GET /api/comments?movie=<slug>` (`lib/comments.ts`) reads from Redis first and only falls back to Supabase on a cache miss, with a 15s TTL — so an open movie thread, which gets polled constantly, isn't hammering Postgres. The cache is also explicitly invalidated the moment a comment is posted or an upvote is paid.
+3. `GET /api/comments?movie=<slug>` (`lib/comments.ts`) reads from Redis first and only falls back to Supabase on a cache miss, with a 15s TTL — so an open movie thread, which gets polled constantly, isn't hammering Postgres. The cache is also explicitly invalidated the moment a comment is posted or an upvote is recorded.
 
-**3. Polar (payments)**
+**3. Polar (payments — not wired up to checkout yet)**
 
-1. Create an organization at [polar.sh](https://polar.sh) and a product with a fixed **₹100 (INR)** price to represent one upvote.
+These variables aren't used by anything right now (see the note above), but setting them up gets you ready to swap the placeholder in `app/api/upvote/route.ts` for a real charge later:
+
+1. Create an organization at [polar.sh](https://polar.sh) and a product with a fixed **₹20 (INR)** price to represent one upvote.
 2. Create an Organization Access Token and set it as `POLAR_ACCESS_TOKEN`; set the product's ID as `POLAR_PRODUCT_ID`.
 3. Add a webhook endpoint pointing at `https://<your-domain>/api/webhooks/polar`, subscribed to `order.paid`, and put its signing secret in `POLAR_WEBHOOK_SECRET`.
-4. Flow: clicking the upvote arrow on a comment posts its ID to `POST /api/upvote` (`app/api/upvote/route.ts`), which creates a ₹100 Polar checkout and redirects the browser to Polar. On successful payment, the `order.paid` webhook (`app/api/webhooks/polar/route.ts`) increments that comment's `upvotes`/`amount_paise` in Supabase and busts the Redis cache for that movie.
+4. Once reactivated, the intended flow is: the confirm modal posts to `POST /api/upvote`, which creates a ₹20 Polar checkout and redirects to Polar; on successful payment, the `order.paid` webhook (`app/api/webhooks/polar/route.ts`) increments that comment's `upvotes`/`amount_paise` and busts the Redis cache. That webhook code is already there, just currently unreachable.
 5. Use `POLAR_SERVER=sandbox` while testing — Polar's sandbox lets you complete checkouts without a real card.
 
 ## Deploying to Vercel

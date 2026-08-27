@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   // NOTE: no payment is actually collected yet — the chosen claim price is
   // trusted from the client and written straight to amount_paise. This is
   // a deliberate placeholder ("claim a spot" like outbid.lol, base price
-  // fixed at ₹100) until real checkout is wired in for posting; anyone can
+  // fixed at ₹20) until real checkout is wired in for posting; anyone can
   // currently claim any rank for free. Don't ship this to a public,
   // adversarial audience without hooking a real charge to this amount.
   const amountPaise =

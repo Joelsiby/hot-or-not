@@ -35,7 +35,7 @@ interface PostConfirmModalProps {
 
 // Predicted rank in the merged feed if this comment posted at `amountPaise`
 // right now — same "claim a spot" logic as outbid.lol's bidding, just with
-// a fixed ₹100 base instead of an open $1 minimum.
+// a fixed ₹20 base instead of an open $1 minimum.
 function previewRank(comments: Comment[], amountPaise: number) {
   return comments.filter((c) => c.amountPaise > amountPaise).length + 1;
 }
@@ -128,7 +128,7 @@ export function PostConfirmModal({
           </div>
         </div>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          Base price is ₹100 — pay more to claim a higher spot. Someone else can still outbid you later.
+          Base price is ₹20 — pay more to claim a higher spot. Someone else can still outbid you later.
         </p>
 
         <p className="mt-3 text-sm text-muted-foreground line-clamp-3">&ldquo;{body}&rdquo;</p>

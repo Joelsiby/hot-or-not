@@ -5,6 +5,7 @@ import { ArrowUp, Loader2, Flame, Snowflake } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { HoverImage } from '@/components/hover-image';
+import { UpvoteConfirmModal } from '@/components/upvote-confirm-modal';
 import { formatINR } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
@@ -13,6 +14,7 @@ interface CommentCardProps {
   comment: Comment;
   rank: number;
   topPaid?: boolean;
+  onUpvoted: () => void;
 }
 
 function timeAgo(iso: string) {
@@ -25,11 +27,12 @@ function timeAgo(iso: string) {
   return `${days}d ago`;
 }
 
-export function CommentCard({ comment, rank, topPaid }: CommentCardProps) {
+export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardProps) {
+  const [showUpvoteConfirm, setShowUpvoteConfirm] = useState(false);
   const [isUpvoting, setIsUpvoting] = useState(false);
   const isHot = comment.side === 'hot';
 
-  const handleUpvote = async () => {
+  const confirmUpvote = async () => {
     setIsUpvoting(true);
     try {
       const res = await fetch('/api/upvote', {
@@ -37,15 +40,15 @@ export function CommentCard({ comment, rank, topPaid }: CommentCardProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentId: comment.id, movieSlug: comment.movieSlug }),
       });
-      const data = await res.json();
-      if (res.ok && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-        return;
+      if (res.ok) {
+        setShowUpvoteConfirm(false);
+        onUpvoted();
       }
     } catch {
-      // swallow — button just re-enables
+      // swallow — modal just stays open so the user can retry
+    } finally {
+      setIsUpvoting(false);
     }
-    setIsUpvoting(false);
   };
 
   return (
@@ -101,7 +104,7 @@ export function CommentCard({ comment, rank, topPaid }: CommentCardProps) {
           <div className="mt-2 flex items-center gap-3">
             <button
               type="button"
-              onClick={handleUpvote}
+              onClick={() => setShowUpvoteConfirm(true)}
               disabled={isUpvoting}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50',
@@ -121,6 +124,14 @@ export function CommentCard({ comment, rank, topPaid }: CommentCardProps) {
           </div>
         </div>
       </div>
+
+      <UpvoteConfirmModal
+        open={showUpvoteConfirm}
+        onOpenChange={setShowUpvoteConfirm}
+        comment={comment}
+        isSubmitting={isUpvoting}
+        onConfirm={confirmUpvote}
+      />
     </Card>
   );
 }

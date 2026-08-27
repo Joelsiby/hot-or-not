@@ -21,7 +21,7 @@ create index if not exists comments_movie_slug_idx on comments (movie_slug, crea
 create index if not exists comments_movie_side_rank_idx
   on comments (movie_slug, side, amount_paise desc, created_at desc);
 
--- One row per paid upvote (₹100 base price, fixed). Mirrors a payment
+-- One row per paid upvote (₹20 base price, fixed). Mirrors a payment
 -- ledger so a webhook retry / duplicate delivery can't double-count.
 create table if not exists upvote_payments (
   id uuid primary key default gen_random_uuid(),

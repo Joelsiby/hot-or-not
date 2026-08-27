@@ -26,9 +26,9 @@ export default function RulesPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-3">Upvoting</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>Upvoting costs a flat ₹100 — there&apos;s no bidding, just the base price.</li>
+                  <li>Upvoting costs a flat ₹20 — there&apos;s no bidding, just the base price.</li>
                   <li>
-                    Each paid upvote adds ₹100 to that comment&apos;s total and moves it up the
+                    Each paid upvote adds ₹20 to that comment&apos;s total and moves it up the
                     column; comments are ranked by total raised, not just upvote count.
                   </li>
                   <li>You can upvote any comment, including your own.</li>
@@ -58,7 +58,7 @@ export default function RulesPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-3">After you pay</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>A completed ₹100 payment is what registers the upvote — nothing counts until then.</li>
+                  <li>A completed ₹20 payment is what registers the upvote — nothing counts until then.</li>
                 </ul>
               </section>
             </div>

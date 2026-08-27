@@ -74,7 +74,7 @@ export default function Home() {
                 {movie.posterEmoji} {movie.title}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Pay ₹100 to upvote a take and push it up.
+                Pay ₹20 to upvote a take and push it up.
               </p>
             </div>
 
@@ -95,7 +95,7 @@ export default function Home() {
 
             <MovieList selectedSlug={selectedSlug} onSelect={setSelectedSlug} className="mt-3 mb-6" />
 
-            <CommentFeed comments={comments} />
+            <CommentFeed comments={comments} onUpvoted={() => loadComments(selectedSlug)} />
           </div>
         </main>
         <Footer />
