@@ -11,7 +11,7 @@ interface VoteMeterProps {
   notTopNames?: string[];
 }
 
-const ROTATE_MS = 5000;
+const ROTATE_MS = 15000;
 
 function pick(pool: string[], seed: number, fallback: string) {
   const name = pool[seed % Math.max(pool.length, 1)]?.trim();
