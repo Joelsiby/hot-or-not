@@ -10,6 +10,7 @@ import type { Comment, Side } from '@/lib/comments-data';
 
 const USERNAME_STORAGE_KEY = 'hot-or-not:username';
 const MAX_CLAIM_PAISE = 100 * BASE_PRICE_PAISE; // ₹2,000 ceiling on the price stepper
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB, checked on the original file before resizing
 
 function getSavedUsername() {
   try {
@@ -69,8 +70,15 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       setError('Only image files are supported');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError('Image must be under 5MB');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setError(null);
     const [thumb, full] = await Promise.all([
       resizeImage(file, 64, 0.6),
       resizeImage(file, 1600, 0.85),

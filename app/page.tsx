@@ -95,7 +95,7 @@ export default function Home() {
 
             <MovieList selectedSlug={selectedSlug} onSelect={setSelectedSlug} className="mt-3 mb-6" />
 
-            <CommentFeed comments={comments} onUpvoted={() => loadComments(selectedSlug)} />
+            <CommentFeed key={selectedSlug} comments={comments} onUpvoted={() => loadComments(selectedSlug)} />
           </div>
         </main>
         <Footer />

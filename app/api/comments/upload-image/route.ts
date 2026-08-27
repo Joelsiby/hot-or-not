@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadCommentImage } from '@/lib/supabase/storage';
 
-const MAX_BYTES = 6 * 1024 * 1024; // 6MB, before the client-side resize this is generous
+const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
