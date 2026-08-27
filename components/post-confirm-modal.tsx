@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Minus, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,21 +13,51 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { Side } from '@/lib/comments-data';
+import type { Comment, Side } from '@/lib/comments-data';
 
 interface PostConfirmModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   side: Side;
+  onSideChange: (side: Side) => void;
   body: string;
+  username: string;
+  onUsernameChange: (name: string) => void;
+  amountPaise: number;
+  onAmountChange: (amountPaise: number) => void;
+  comments: Comment[];
   isSubmitting: boolean;
   onConfirm: () => void;
 }
 
-export function PostConfirmModal({ open, onOpenChange, side, body, isSubmitting, onConfirm }: PostConfirmModalProps) {
+// Predicted rank in the merged feed if this comment posted at `amountPaise`
+// right now — same "claim a spot" logic as outbid.lol's bidding, just with
+// a fixed ₹100 base instead of an open $1 minimum.
+function previewRank(comments: Comment[], amountPaise: number) {
+  return comments.filter((c) => c.amountPaise > amountPaise).length + 1;
+}
+
+export function PostConfirmModal({
+  open,
+  onOpenChange,
+  side,
+  onSideChange,
+  body,
+  username,
+  onUsernameChange,
+  amountPaise,
+  onAmountChange,
+  comments,
+  isSubmitting,
+  onConfirm,
+}: PostConfirmModalProps) {
   const [agreed, setAgreed] = useState(false);
   const isHot = side === 'hot';
+  const rank = previewRank(comments, amountPaise);
+  const canDecrease = amountPaise > BASE_PRICE_PAISE;
 
   return (
     <Dialog
@@ -40,38 +71,77 @@ export function PostConfirmModal({ open, onOpenChange, side, body, isSubmitting,
         <DialogHeader>
           <DialogTitle>Confirm this take</DialogTitle>
           <DialogDescription>
-            Check what you&apos;re posting, then agree to the Terms of Service to continue.
+            Check the rank and price, then agree to the Terms of Service to continue.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-muted p-4">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Posting as
-            </div>
-            <div
-              className={cn(
-                'mt-1 text-lg font-bold',
-                isHot ? 'text-orange-600' : 'text-sky-600'
-              )}
-            >
-              {isHot ? '🔥 Hot' : '❄️ Not'}
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Cost</div>
-            <div className="mt-1 text-lg font-bold">Free</div>
-          </div>
+        <div className="mt-4 flex rounded-full bg-muted p-0.5">
+          <button
+            type="button"
+            onClick={() => onSideChange('hot')}
+            className={cn(
+              'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              isHot ? 'bg-orange-500 text-white' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            🔥 Hot
+          </button>
+          <button
+            type="button"
+            onClick={() => onSideChange('not')}
+            className={cn(
+              'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              !isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            ❄️ Not
+          </button>
         </div>
 
-        <p className="mt-4 text-sm text-muted-foreground line-clamp-3">&ldquo;{body}&rdquo;</p>
-
-        <p className="mt-4 text-sm text-muted-foreground">
-          Your take goes live immediately and stays visible to everyone. Anyone can pay ₹100 to
-          upvote it and push it up the feed.
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-muted p-4">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Rank</div>
+            <div className="mt-1 text-lg font-bold">#{rank}</div>
+          </div>
+          <div className="flex flex-col items-end">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Price</div>
+            <div className="mt-1 flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => canDecrease && onAmountChange(amountPaise - BASE_PRICE_PAISE)}
+                disabled={!canDecrease}
+                className="inline-flex items-center justify-center size-6 rounded-full bg-background hover:bg-border transition-colors disabled:opacity-40"
+              >
+                <Minus className="size-3" />
+              </button>
+              <span className="text-lg font-bold tabular-nums min-w-16 text-center">
+                {formatINR(amountPaise)}
+              </span>
+              <button
+                type="button"
+                onClick={() => onAmountChange(amountPaise + BASE_PRICE_PAISE)}
+                className="inline-flex items-center justify-center size-6 rounded-full bg-background hover:bg-border transition-colors"
+              >
+                <Plus className="size-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          Base price is ₹100 — pay more to claim a higher spot. Someone else can still outbid you later.
         </p>
 
-        <label className="mt-4 flex items-start gap-3 rounded-xl border border-border p-3 text-sm cursor-pointer">
+        <p className="mt-3 text-sm text-muted-foreground line-clamp-3">&ldquo;{body}&rdquo;</p>
+
+        <Input
+          placeholder="Your username"
+          value={username}
+          onChange={(e) => onUsernameChange(e.target.value)}
+          maxLength={40}
+          className="mt-3"
+        />
+
+        <label className="mt-3 flex items-start gap-3 rounded-xl border border-border p-3 text-sm cursor-pointer">
           <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
           <span>
             I have read and agree to the{' '}
@@ -90,8 +160,8 @@ export function PostConfirmModal({ open, onOpenChange, side, body, isSubmitting,
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={onConfirm} disabled={!agreed || isSubmitting}>
-            {isSubmitting ? 'Posting…' : `Post ${isHot ? 'Hot' : 'Not'} take`}
+          <Button onClick={onConfirm} disabled={!agreed || !username.trim() || isSubmitting}>
+            {isSubmitting ? 'Posting…' : `Post at #${rank}`}
           </Button>
         </DialogFooter>
       </DialogContent>

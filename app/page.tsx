@@ -87,7 +87,11 @@ export default function Home() {
               <VoteMeter hotPaise={hotPaise} notPaise={notPaise} />
             </div>
 
-            <CommentComposer movieSlug={selectedSlug} onPosted={() => loadComments(selectedSlug)} />
+            <CommentComposer
+              movieSlug={selectedSlug}
+              comments={comments}
+              onPosted={() => loadComments(selectedSlug)}
+            />
 
             <MovieList selectedSlug={selectedSlug} onSelect={setSelectedSlug} className="mt-3 mb-6" />
 

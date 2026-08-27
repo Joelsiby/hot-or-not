@@ -4,11 +4,25 @@ import { useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PostConfirmModal } from '@/components/post-confirm-modal';
+import { BASE_PRICE_PAISE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { Side } from '@/lib/comments-data';
+import type { Comment, Side } from '@/lib/comments-data';
+
+const USERNAME_STORAGE_KEY = 'hot-or-not:username';
+const MAX_CLAIM_PAISE = 100 * BASE_PRICE_PAISE; // ₹10,000 ceiling on the price stepper
+
+function getSavedUsername() {
+  try {
+    return localStorage.getItem(USERNAME_STORAGE_KEY) ?? '';
+  } catch {
+    // localStorage unavailable (private mode, etc.) — just skip prefill
+    return '';
+  }
+}
 
 interface CommentComposerProps {
   movieSlug: string;
+  comments: Comment[];
   onPosted: () => void;
 }
 
@@ -36,11 +50,14 @@ function resizeImage(file: File, maxDimension: number, quality: number): Promise
 }
 
 // A single posting bar for the whole feed — pick Hot or Not, type a take,
-// optionally attach an image, post. Author identity isn't collected here;
-// it'll be pulled from wherever the app's user identity ends up living.
-export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
+// optionally attach an image, then confirm the claim price and username in
+// the modal before it actually posts.
+export function CommentComposer({ movieSlug, comments, onPosted }: CommentComposerProps) {
   const [side, setSide] = useState<Side>('hot');
   const [body, setBody] = useState('');
+  // Remember the username on this browser so returning fans don't retype it.
+  const [username, setUsername] = useState(getSavedUsername);
+  const [amountPaise, setAmountPaise] = useState(BASE_PRICE_PAISE);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [fullDataUrl, setFullDataUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,9 +119,11 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
         body: JSON.stringify({
           movieSlug,
           side,
+          authorName: username,
           body,
           imageUrl,
           thumbnailUrl: imageUrl ? thumbnailUrl : null,
+          amountPaise,
         }),
       });
       const data = await res.json();
@@ -113,7 +132,14 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
         return;
       }
 
+      try {
+        localStorage.setItem(USERNAME_STORAGE_KEY, username.trim());
+      } catch {
+        // localStorage unavailable — not worth surfacing an error over
+      }
+
       setBody('');
+      setAmountPaise(BASE_PRICE_PAISE);
       clearImage();
       setShowConfirm(false);
       onPosted();
@@ -198,7 +224,13 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
         open={showConfirm}
         onOpenChange={setShowConfirm}
         side={side}
+        onSideChange={setSide}
         body={body}
+        username={username}
+        onUsernameChange={setUsername}
+        amountPaise={amountPaise}
+        onAmountChange={(next) => setAmountPaise(Math.min(MAX_CLAIM_PAISE, Math.max(BASE_PRICE_PAISE, next)))}
+        comments={comments}
         isSubmitting={isSubmitting}
         onConfirm={submitComment}
       />
