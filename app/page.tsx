@@ -74,7 +74,7 @@ export default function Home() {
                 {movie.posterEmoji} {movie.title}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Pay ₹20 to upvote a take and push it up.
+                Be the best critic or fan — upvotes start at ₹20.
               </p>
             </div>
 
