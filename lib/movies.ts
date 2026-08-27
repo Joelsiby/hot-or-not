@@ -12,7 +12,7 @@ export interface Movie {
 // becomes selectable immediately. Toxic is first, so it's the default
 // selection on load.
 export const movies: Movie[] = [
-  { slug: 'toxic', title: 'Toxic', posterEmoji: '🔥', bannerUrl: '/banners/banner.jpg' },
+  { slug: 'toxic', title: 'Toxic', posterEmoji: '🔥', bannerUrl: '/banners/toxic-2026.jpg' },
   // Ramayana: Part 1 (Ranbir Kapoor, Yash, Sai Pallavi) — Nitesh Tiwari's
   // two-part epic, releasing Diwali 2026.
   { slug: 'ramayana-part-1', title: 'Ramayana: Part 1', posterEmoji: '🏹', bannerUrl: '/banners/ramayana-part-1.jpg' },
