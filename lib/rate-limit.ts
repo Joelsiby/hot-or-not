@@ -105,3 +105,15 @@ export async function rateLimitImageUpload(identifier: string): Promise<RateLimi
   // 5 uploads per 5 minutes per user/IP
   return rateLimit(identifier, 5, 5 * 60 * 1000);
 }
+
+// Specific rate limit for posting comments
+export async function rateLimitCommentPosting(identifier: string): Promise<RateLimitResult> {
+  // 10 comments per 5 minutes per user/IP
+  return rateLimit(identifier, 10, 5 * 60 * 1000);
+}
+
+// Specific rate limit for upvoting
+export async function rateLimitUpvoting(identifier: string): Promise<RateLimitResult> {
+  // 20 upvotes per 5 minutes per user/IP
+  return rateLimit(identifier, 20, 5 * 60 * 1000);
+}
