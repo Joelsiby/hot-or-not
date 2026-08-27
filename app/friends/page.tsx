@@ -96,7 +96,7 @@ export default function FriendsPage() {
         <Header />
         <main className="flex-1">
           <div className="max-w-4xl mx-auto px-4 py-16">
-            <h1 className="text-4xl font-bold tracking-tight">Hot or Not & friends</h1>
+            <h1 className="text-4xl font-bold tracking-tight">Hate or Hype & friends</h1>
             <p className="text-muted-foreground mt-2">
               A list of .lol domains inspired by outbid.lol.
             </p>
@@ -104,7 +104,7 @@ export default function FriendsPage() {
               {friends.map((friend) => (
                 <a
                   key={friend.name}
-                  href={`https://${friend.name}?utm_source=hot-or-not&utm_medium=friends&utm_campaign=reciprocal`}
+                  href={`https://${friend.name}?utm_source=hate-or-hype&utm_medium=friends&utm_campaign=reciprocal`}
                   target="_blank"
                   rel="sponsored noopener noreferrer"
                   className="group"

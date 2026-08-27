@@ -1,4 +1,4 @@
-# Hot or Not
+# Hate or Hype
 
 Based on the [Outbid Template](https://github.com/shadcn-labs/outbid-template).
 

@@ -80,7 +80,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
         amount: orderData.amountPaise,
         currency: orderData.currency,
         order_id: orderData.orderId,
-        name: 'hot-or-not',
+        name: 'hate-or-hype',
         description: `Upvote on ${comment.movieSlug}`,
         theme: { color: isHot ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {

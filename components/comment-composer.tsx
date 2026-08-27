@@ -161,7 +161,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         amount: orderData.amountPaise,
         currency: orderData.currency,
         order_id: orderData.orderId,
-        name: 'hot-or-not',
+        name: 'hate-or-hype',
         description: `${side === 'hot' ? 'Hype' : 'Hate'} take on ${movieSlug}`,
         theme: { color: side === 'hot' ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {

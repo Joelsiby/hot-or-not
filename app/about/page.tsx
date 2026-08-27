@@ -12,7 +12,7 @@ export default function AboutPage() {
             <h1 className="text-4xl font-bold tracking-tight">About</h1>
             <div className="mt-8 space-y-6 text-muted-foreground">
               <p>
-                Hot or Not is where movie opinions actually cost something. Pick a movie, then put
+                Hate or Hype is where movie opinions actually cost something. Pick a movie, then put
                 your money where your mouth is — argue for it under <span className="text-sky-600 font-medium">⚡ Hype</span>, or tear it apart
                 under <span className="text-red-600 font-medium">🔥 Hate</span>. No ads, no API keys, no revenue share — just fans versus
                 critics, settled in rupees instead of replies.

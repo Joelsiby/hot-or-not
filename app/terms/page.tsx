@@ -22,7 +22,7 @@ export default function TermsPage() {
 
             <div className="mt-8 space-y-8 text-muted-foreground [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:text-foreground [&_p]:mb-3 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-2">
               <p>
-                These Terms of Service (&quot;Terms&quot;) govern access to and use of hot-or-not (the
+                These Terms of Service (&quot;Terms&quot;) govern access to and use of hate-or-hype (the
                 &quot;Service&quot;), including the movie feed, posting comments, upvoting, checkout,
                 and related features. By using the Service, posting a comment, or completing a
                 payment, you agree to these Terms.
@@ -47,7 +47,7 @@ export default function TermsPage() {
               <section>
                 <h2>What the Service is</h2>
                 <p>
-                  hot-or-not is a public feed of fan opinion about movies. Posting a comment as
+                  hate-or-hype is a public feed of fan opinion about movies. Posting a comment as
                   &quot;Hype&quot; (in favour) or &quot;Hate&quot; (critical) costs a fixed ₹20, and you
                   may pay more than that to claim a higher starting position. Upvoting any comment
                   also costs ₹20 per upvote; each paid upvote raises that comment&apos;s position and

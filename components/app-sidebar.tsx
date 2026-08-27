@@ -31,7 +31,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <Link href="/" className="font-bold text-xl">
-          hot-or-not
+          hate-or-hype
         </Link>
       </SidebarHeader>
       <SidebarContent>
