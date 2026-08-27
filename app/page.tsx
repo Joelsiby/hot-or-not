@@ -11,6 +11,7 @@ import { CommentComposer } from '@/components/comment-composer';
 import { CommentFeed } from '@/components/comment-feed';
 import { TrendingSection } from '@/components/trending-section';
 import { LatestActivity } from '@/components/latest-activity';
+import { MovieControversies } from '@/components/movie-controversies';
 import { movies, getMovie } from '@/lib/movies';
 import { seedComments, type Comment } from '@/lib/comments-data';
 import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
@@ -100,6 +101,8 @@ export default function Home() {
                 Be the best critic or fan — the top take is going for {formatINR(topPricePaise)}.
               </p>
             </div>
+
+            <MovieControversies movieSlug={selectedSlug} movieTitle={movie.title} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <TrendingSection comments={comments} isLoading={isLoading} />
