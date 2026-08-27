@@ -1,9 +1,9 @@
-// NEXT_PUBLIC_SITE_URL is the source of truth (set it to your production
-// domain once you have one), but Vercel sets VERCEL_URL on every deployment
-// automatically — falling back to it means preview/production deploys work
-// out of the box even before you've configured a custom domain.
+// NEXT_PUBLIC_SITE_URL is the source of truth. Vercel sets VERCEL_URL on every
+// deployment automatically, so previews still use their deployment URL.
 export function getSiteUrl() {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return 'http://localhost:3000';
+  if (process.env.VERCEL_URL && process.env.VERCEL_ENV !== 'production') {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'https://www.bhosdike.lol';
 }

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: 'Hot or Not',
   description:
     'Pick a movie, argue for it in the Hot column or against it in the Not column. Pay ₹100 to upvote a take and push it up.',
+  referrer: 'strict-origin-when-cross-origin',
 };
 
 export default function RootLayout({
