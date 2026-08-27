@@ -13,8 +13,11 @@ export interface MovieControversyItem {
 // boycotts, or controversy specifically involving the selected movie —
 // fired once when a movie is clicked (see app/api/movie-controversies),
 // not on a schedule.
-const QUERY_SUFFIXES = ['backlash', 'controversy', 'boycott', 'review bomb'];
-const parser = new Parser({ timeout: 8000 });
+//
+// One combined OR query instead of four separate requests — was the main
+// source of latency (up to 4x8s worst-case sequential-feeling timeouts).
+const QUERY = '(backlash OR controversy OR boycott OR "review bomb")';
+const parser = new Parser({ timeout: 6000 });
 
 function stripHtml(text: string): string {
   return text.replace(/<[^>]+>/g, '').trim();
@@ -33,29 +36,26 @@ export async function fetchMovieControversies(movieTitle: string): Promise<Movie
   const seen = new Set<string>();
   const items: MovieControversyItem[] = [];
 
-  await Promise.all(
-    QUERY_SUFFIXES.map(async (suffix) => {
-      const query = `"${movieTitle}" ${suffix}`;
-      try {
-        const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:US`;
-        const feed = await parser.parseURL(url);
-        for (const entry of feed.items ?? []) {
-          if (!entry.title || !entry.link || seen.has(entry.link)) continue;
-          seen.add(entry.link);
-          items.push({
-            id: hashId(entry.link),
-            title: stripHtml(entry.title),
-            sourceUrl: entry.link,
-            publishedAt: entry.isoDate || new Date().toISOString(),
-          });
-        }
-      } catch {
-        // one query failing (timeout, malformed feed) shouldn't kill the rest
-      }
-    })
-  );
+  const query = `"${movieTitle}" ${QUERY}`;
+  const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:US`;
+
+  try {
+    const feed = await parser.parseURL(url);
+    for (const entry of feed.items ?? []) {
+      if (!entry.title || !entry.link || seen.has(entry.link)) continue;
+      seen.add(entry.link);
+      items.push({
+        id: hashId(entry.link),
+        title: stripHtml(entry.title),
+        sourceUrl: entry.link,
+        publishedAt: entry.isoDate || new Date().toISOString(),
+      });
+    }
+  } catch {
+    // network hiccup or malformed feed — empty result, no crash
+  }
 
   return items
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, 8);
+    .slice(0, 3);
 }
