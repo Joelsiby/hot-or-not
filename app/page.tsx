@@ -12,6 +12,7 @@ import { TrendingSection } from '@/components/trending-section';
 import { LatestActivity } from '@/components/latest-activity';
 import { movies, getMovie } from '@/lib/movies';
 import { seedComments, type Comment } from '@/lib/comments-data';
+import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
 
 // Rows are ranked purely by amount raised (then recency) — Hot and Not
 // takes interleave in the same feed based on price and top bid.
@@ -62,6 +63,10 @@ export default function Home() {
   const movie = getMovie(selectedSlug)!;
   const hotPaise = comments.filter((c) => c.side === 'hot').reduce((sum, c) => sum + c.amountPaise, 0);
   const notPaise = comments.filter((c) => c.side === 'not').reduce((sum, c) => sum + c.amountPaise, 0);
+  // comments is already sorted by amount raised (byAmountRaised), so the
+  // top take's price is just the first row — falls back to the base price
+  // before anyone's posted anything yet.
+  const topPricePaise = comments[0]?.amountPaise ?? BASE_PRICE_PAISE;
 
   return (
     <MobileLayout>
@@ -74,7 +79,7 @@ export default function Home() {
                 {movie.posterEmoji} {movie.title}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Be the best critic or fan — upvotes start at ₹20.
+                Be the best critic or fan — the top take is going for {formatINR(topPricePaise)}.
               </p>
             </div>
 
