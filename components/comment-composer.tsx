@@ -207,18 +207,6 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         <div className="flex rounded-full bg-muted p-0.5 shrink-0">
           <button
             type="button"
-            onClick={() => setSide('hot')}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              side === 'hot'
-                ? 'bg-sky-500 text-white'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            ⚡ Hype
-          </button>
-          <button
-            type="button"
             onClick={() => setSide('not')}
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
@@ -228,6 +216,18 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             )}
           >
             🔥 Hate
+          </button>
+          <button
+            type="button"
+            onClick={() => setSide('hot')}
+            className={cn(
+              'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              side === 'hot'
+                ? 'bg-sky-500 text-white'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            ⚡ Hype
           </button>
         </div>
         <input

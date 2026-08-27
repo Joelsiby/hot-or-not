@@ -78,16 +78,6 @@ export function PostConfirmModal({
         <div className="mt-4 flex rounded-full bg-muted p-0.5">
           <button
             type="button"
-            onClick={() => onSideChange('hot')}
-            className={cn(
-              'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            ⚡ Hype
-          </button>
-          <button
-            type="button"
             onClick={() => onSideChange('not')}
             className={cn(
               'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
@@ -95,6 +85,16 @@ export function PostConfirmModal({
             )}
           >
             🔥 Hate
+          </button>
+          <button
+            type="button"
+            onClick={() => onSideChange('hot')}
+            className={cn(
+              'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            ⚡ Hype
           </button>
         </div>
 
