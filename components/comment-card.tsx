@@ -90,18 +90,18 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm truncate">{comment.authorName}</span>
-            {isHot ? (
-              <Flame className="size-3.5 text-orange-600" />
-            ) : (
-              <Snowflake className="size-3.5 text-sky-600" />
-            )}
-            <span className="text-xs text-muted-foreground" suppressHydrationWarning>
-              {timeAgo(comment.createdAt)}
+          <div className="flex items-start justify-between gap-3">
+            <span className="font-bold text-[15px] leading-snug truncate">{comment.authorName}</span>
+            <span
+              className={cn(
+                'shrink-0 text-base sm:text-lg font-bold tabular-nums',
+                isHot ? 'text-orange-600' : 'text-sky-600'
+              )}
+            >
+              {formatINR(comment.amountPaise)}
             </span>
           </div>
-          <p className="text-sm text-foreground/90 mt-0.5 whitespace-pre-wrap break-words">
+          <p className="text-sm text-muted-foreground mt-0.5 whitespace-pre-wrap break-words">
             {comment.body}
           </p>
           {comment.imageUrl && comment.thumbnailUrl && (
@@ -113,26 +113,27 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
               />
             </div>
           )}
-          <div className="mt-2 flex items-center gap-3">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
+            <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-orange-600' : 'text-sky-600')}>
+              {isHot ? <Flame className="size-3" /> : <Snowflake className="size-3" />}
+              {isHot ? 'Hot' : 'Not'}
+            </span>
+            <span aria-hidden>·</span>
+            <span suppressHydrationWarning>{timeAgo(comment.createdAt)}</span>
+            <span aria-hidden>·</span>
             <button
               type="button"
               onClick={openUpvoteConfirm}
               disabled={isUpvoting}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50',
-                isHot
-                  ? 'border-orange-500/30 bg-orange-500/10 text-orange-600 hover:bg-orange-500/20'
-                  : 'border-sky-500/30 bg-sky-500/10 text-sky-600 hover:bg-sky-500/20'
-              )}
+              className="inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors disabled:opacity-50"
             >
               {isUpvoting ? (
-                <Loader2 className="size-3.5 animate-spin" />
+                <Loader2 className="size-3 animate-spin" />
               ) : (
-                <ArrowUp className="size-3.5" />
+                <ArrowUp className="size-3" />
               )}
-              {comment.upvotes}
+              {comment.upvotes} upvotes
             </button>
-            <span className="text-xs text-muted-foreground">raised {formatINR(comment.amountPaise)}</span>
           </div>
         </div>
       </div>
