@@ -81,8 +81,18 @@ export default function Home() {
         <main className="flex-1">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="text-center mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                {movie.posterEmoji} {movie.title}
+              <h1 className="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight">
+                {movie.bannerUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size poster thumbnail, not worth next/image's overhead
+                  <img
+                    src={movie.bannerUrl}
+                    alt=""
+                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <span>{movie.posterEmoji}</span>
+                )}
+                {movie.title}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
                 Be the best critic or fan — the top take is going for {formatINR(topPricePaise)}.
