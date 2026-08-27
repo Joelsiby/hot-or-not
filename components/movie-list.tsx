@@ -28,7 +28,12 @@ export function MovieList({ selectedSlug, onSelect, className }: MovieListProps)
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             )}
           >
-            <span>{movie.posterEmoji}</span>
+            {movie.bannerUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size chip thumbnail, not worth next/image's overhead
+              <img src={movie.bannerUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
+            ) : (
+              <span>{movie.posterEmoji}</span>
+            )}
             {movie.title}
           </button>
         );
