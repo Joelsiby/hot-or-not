@@ -5,6 +5,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { MobileLayout } from '@/components/mobile-layout';
 import { MovieList } from '@/components/movie-list';
+import { HoverImage } from '@/components/hover-image';
 import { VoteMeter } from '@/components/vote-meter';
 import { CommentComposer } from '@/components/comment-composer';
 import { CommentFeed } from '@/components/comment-feed';
@@ -83,11 +84,12 @@ export default function Home() {
             <div className="text-center mb-6">
               <h1 className="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight">
                 {movie.bannerUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size poster thumbnail, not worth next/image's overhead
-                  <img
-                    src={movie.bannerUrl}
+                  <HoverImage
+                    thumbnailUrl={movie.bannerUrl}
+                    fullUrl={movie.bannerUrl}
                     alt=""
-                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border border-border"
+                    thumbnailClassName="h-8 w-8 sm:h-9 sm:w-9 rounded-full"
+                    thumbnailImgClassName="object-cover"
                   />
                 ) : (
                   <span>{movie.posterEmoji}</span>

@@ -8,6 +8,12 @@ interface HoverImageProps {
   thumbnailUrl: string;
   fullUrl: string;
   alt: string;
+  // Overrides for the inline thumbnail's box/image classes — defaults
+  // match the original size-14 rounded-lg "contain" thumbnail used for
+  // comment images. Pass e.g. a smaller size-8 rounded-full + object-cover
+  // pair for a circular avatar (see app/page.tsx's movie poster).
+  thumbnailClassName?: string;
+  thumbnailImgClassName?: string;
 }
 
 const PREVIEW_MAX_PX = 448; // ~28rem ceiling, clamped down to fit the viewport below that
@@ -33,7 +39,13 @@ interface PreviewPlacement {
 // preview can never run off a small (mobile) screen: it's capped to fit
 // horizontally, and flips to open downward instead of upward when there
 // isn't enough room above the thumbnail.
-export function HoverImage({ thumbnailUrl, fullUrl, alt }: HoverImageProps) {
+export function HoverImage({
+  thumbnailUrl,
+  fullUrl,
+  alt,
+  thumbnailClassName,
+  thumbnailImgClassName,
+}: HoverImageProps) {
   const [hovered, setHovered] = useState(false);
   const [placement, setPlacement] = useState<PreviewPlacement | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -84,11 +96,16 @@ export function HoverImage({ thumbnailUrl, fullUrl, alt }: HoverImageProps) {
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
     >
-      <div className="flex size-14 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-lg">
+      <div
+        className={cn(
+          'flex items-center justify-center overflow-hidden border border-border/60 bg-muted transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:shadow-lg',
+          thumbnailClassName ?? 'size-14 rounded-lg'
+        )}
+      >
         <img
           src={thumbnailUrl}
           alt={alt}
-          className="size-full object-contain cursor-zoom-in"
+          className={cn('size-full cursor-zoom-in', thumbnailImgClassName ?? 'object-contain')}
         />
       </div>
       {hovered &&
