@@ -12,9 +12,9 @@ export default function RulesPage() {
             <h1 className="text-4xl font-bold tracking-tight">Rules</h1>
             <div className="mt-8 space-y-8">
               <section>
-                <h2 className="text-xl font-semibold mb-3">Hot vs Not</h2>
+                <h2 className="text-xl font-semibold mb-3">Hype vs Hate</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>Every movie has two columns: Hot (in favour) and Not (critical).</li>
+                  <li>Every movie has two columns: Hype (in favour) and Hate (critical).</li>
                   <li>
                     Posting a comment costs a flat ₹20 minimum — pick a side, write your take, and
                     optionally pay more than the base price to claim a higher starting rank.

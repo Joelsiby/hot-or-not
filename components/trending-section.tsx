@@ -76,10 +76,10 @@ export function TrendingSection({ comments, isLoading, movieSlug }: TrendingSect
                   <span
                     className={cn(
                       'shrink-0 text-xs',
-                      comment.side === 'hot' ? 'text-red-600' : 'text-sky-600'
+                      comment.side === 'hot' ? 'text-sky-600' : 'text-red-600'
                     )}
                   >
-                    {comment.side === 'hot' ? '🔥' : '❄️'}
+                    {comment.side === 'hot' ? '⚡' : '🔥'}
                   </span>
                   <span className="font-medium truncate">{comment.body}</span>
                 </div>

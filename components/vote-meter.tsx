@@ -25,12 +25,12 @@ function pick(pool: string[], seed: number, fallback: string) {
 // leans on Indian movie-Twitter/review-culture slang (FDFS, mass entry,
 // box office, review bombing, pan-India, housefull, hit-ya-flop, etc.).
 function buildLines(
-  winner: 'Hot' | 'Not' | null,
-  loser: 'Hot' | 'Not' | null,
+  winner: 'Hype' | 'Hate' | null,
+  loser: 'Hype' | 'Hate' | null,
   winnerNames: string[],
   loserNames: string[]
 ) {
-  const l = loser ?? 'Not';
+  const l = loser ?? 'Hate';
   const status = winner ? `${winner} is winning` : "It's tied";
   const loserName = (seed: number) => pick(loserNames, seed, `the ${l} crowd`);
   const winnerName = (seed: number) => pick(winnerNames, seed, 'somebody');
@@ -113,10 +113,10 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   const total = hotPaise + notPaise;
   const hotPct = total === 0 ? 50 : Math.round((hotPaise / total) * 100);
   const isTied = hotPaise === notPaise;
-  const winner = isTied ? null : hotPaise > notPaise ? 'Hot' : 'Not';
-  const loser = isTied ? null : winner === 'Hot' ? 'Not' : 'Hot';
-  const winnerNames = winner === 'Not' ? notTopNames : hotTopNames;
-  const loserNames = winner === 'Not' ? hotTopNames : notTopNames;
+  const winner = isTied ? null : hotPaise > notPaise ? 'Hype' : 'Hate';
+  const loser = isTied ? null : winner === 'Hype' ? 'Hate' : 'Hype';
+  const winnerNames = winner === 'Hate' ? notTopNames : hotTopNames;
+  const loserNames = winner === 'Hate' ? hotTopNames : notTopNames;
 
   const lines = buildLines(winner, loser, winnerNames, loserNames);
   const [lineIndex, setLineIndex] = useState(0);
@@ -134,7 +134,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   return (
     <div className="rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-3 text-sm font-semibold">
-        <span className="text-red-600 shrink-0">🔥 {formatINR(hotPaise)}</span>
+        <span className="text-sky-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
         <span
           key={lineIndex}
           className={cn(
@@ -142,19 +142,19 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
             isStatusLine
               ? isTied
                 ? 'text-muted-foreground'
-                : winner === 'Hot'
-                  ? 'text-red-600'
-                  : 'text-sky-600'
+                : winner === 'Hype'
+                  ? 'text-sky-600'
+                  : 'text-red-600'
               : 'text-muted-foreground normal-case tracking-normal'
           )}
         >
           {currentLine}
         </span>
-        <span className="text-sky-600 shrink-0">❄️ {formatINR(notPaise)}</span>
+        <span className="text-red-600 shrink-0">🔥 {formatINR(notPaise)}</span>
       </div>
-      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sky-500/20">
+      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-red-500/20">
         <div
-          className="h-full rounded-full bg-red-500 transition-all duration-500"
+          className="h-full rounded-full bg-sky-500 transition-all duration-500"
           style={{ width: `${hotPct}%` }}
         />
       </div>

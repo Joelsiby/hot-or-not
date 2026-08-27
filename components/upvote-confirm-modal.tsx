@@ -66,7 +66,7 @@ export function UpvoteConfirmModal({
               amountPaise={amountPaise}
               onAmountChange={onAmountChange}
               className="mt-1"
-              valueClassName={cn('text-lg', isHot ? 'text-red-600' : 'text-sky-600')}
+              valueClassName={cn('text-lg', isHot ? 'text-sky-600' : 'text-red-600')}
             />
           </div>
           <div className="text-right">

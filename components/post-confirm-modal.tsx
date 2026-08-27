@@ -81,20 +81,20 @@ export function PostConfirmModal({
             onClick={() => onSideChange('hot')}
             className={cn(
               'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              isHot ? 'bg-red-500 text-white' : 'text-muted-foreground hover:text-foreground'
+              isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            🔥 Hot
+            ⚡ Hype
           </button>
           <button
             type="button"
             onClick={() => onSideChange('not')}
             className={cn(
               'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              !isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
+              !isHot ? 'bg-red-500 text-white' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            ❄️ Not
+            🔥 Hate
           </button>
         </div>
 

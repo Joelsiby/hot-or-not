@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: 'Hot or Not',
   description:
-    'Pick a movie, argue for it in the Hot column or against it in the Not column. Be the best critic or fan — upvotes start at ₹20.',
+    'Pick a movie, argue for it in the Hype column or against it in the Hate column. Be the best critic or fan — upvotes start at ₹20.',
   referrer: 'strict-origin-when-cross-origin',
 };
 

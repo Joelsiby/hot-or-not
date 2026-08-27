@@ -45,12 +45,12 @@ export function LatestActivity({ comments, isLoading }: LatestActivityProps) {
             {recent.map((comment) => (
               <div key={comment.id} className="flex items-center justify-between text-sm min-w-0 gap-2">
                 <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  <span className={cn('shrink-0', comment.side === 'hot' ? 'text-red-600' : 'text-sky-600')}>
-                    {comment.side === 'hot' ? '🔥' : '❄️'}
+                  <span className={cn('shrink-0', comment.side === 'hot' ? 'text-sky-600' : 'text-red-600')}>
+                    {comment.side === 'hot' ? '⚡' : '🔥'}
                   </span>
                   <span className="font-medium shrink-0 max-w-24 truncate">{comment.authorName}</span>
                   <Badge variant="outline" className="text-xs shrink-0">
-                    {comment.side === 'hot' ? 'Hot' : 'Not'}
+                    {comment.side === 'hot' ? 'Hype' : 'Hate'}
                   </Badge>
                   <span className="text-xs text-muted-foreground min-w-0 flex-1 truncate">
                     {comment.body}

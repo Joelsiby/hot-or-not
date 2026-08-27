@@ -2,7 +2,7 @@
 
 Based on the [Outbid Template](https://github.com/shadcn-labs/outbid-template).
 
-A movie fan battleground built with Next.js and shadcn/ui. Pick a movie from the list, then argue for it in the **Hot** column or against it in the **Not** column. Posting a take and upvoting one both cost a flat ₹20 (pay more to claim a higher rank) via Razorpay (UPI, cards, netbanking, wallets) — the meter above each movie shows, in real money, which side is winning.
+A movie fan battleground built with Next.js and shadcn/ui. Pick a movie from the list, then argue for it in the **Hype** column or against it in the **Hate** column. Posting a take and upvoting one both cost a flat ₹20 (pay more to claim a higher rank) via Razorpay (UPI, cards, netbanking, wallets) — the meter above each movie shows, in real money, which side is winning.
 
 This repo is meant to be used as a **template**: clone it, swap in your own movies and branding, and ship your own version.
 
@@ -41,7 +41,7 @@ pnpm format      # prettier --write
 
 ```
 app/
-  page.tsx                    # home page (movie list, Hot/Not columns, trending, activity)
+  page.tsx                    # home page (movie list, Hype/Hate columns, trending, activity)
   about/, rules/, stats/, friends/   # static/info pages
   api/
     comments/route.ts               # GET: comments for a movie · POST: creates a Razorpay order for a new comment (held in comment_payments until paid)
@@ -52,7 +52,7 @@ components/
   ui/                    # shadcn/ui primitives (Button, Card, Sheet, ...)
   header.tsx, footer.tsx
   movie-list.tsx         # left sidebar (desktop) / chip row (mobile) of movies
-  vote-meter.tsx         # Hot vs Not totals bar for the selected movie
+  vote-meter.tsx         # Hype vs Hate totals bar for the selected movie
   comment-column.tsx, comment-card.tsx, comment-composer.tsx
   hover-image.tsx        # microsize thumbnail by default, full image loads on hover
   trending-section.tsx   # top 3 most-upvoted comments

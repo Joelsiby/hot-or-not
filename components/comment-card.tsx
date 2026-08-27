@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUp, Loader2, Flame, Snowflake } from 'lucide-react';
+import { ArrowUp, Loader2, Zap, Flame } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { HoverImage } from '@/components/hover-image';
@@ -82,7 +82,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
         order_id: orderData.orderId,
         name: 'hot-or-not',
         description: `Upvote on ${comment.movieSlug}`,
-        theme: { color: isHot ? '#ef4444' : '#0ea5e9' },
+        theme: { color: isHot ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {
           try {
             const verifyRes = await fetch('/api/razorpay/verify', {
@@ -116,11 +116,11 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
     <Card
       className={cn(
         'p-3 border-l-4',
-        isHot ? 'border-l-red-500 bg-red-500/5' : 'border-l-sky-500 bg-sky-500/5',
+        isHot ? 'border-l-sky-500 bg-sky-500/5' : 'border-l-red-500 bg-red-500/5',
         topPaid &&
           (isHot
-            ? 'ring-2 ring-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]'
-            : 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]')
+            ? 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]'
+            : 'ring-2 ring-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]')
       )}
     >
       <div className="flex gap-3">
@@ -131,17 +131,17 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
                 'flex size-6 items-center justify-center rounded-full text-[11px] font-bold',
                 topPaid
                   ? isHot
-                    ? 'bg-red-500 text-white'
-                    : 'bg-blue-500 text-white'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-red-500 text-white'
                   : isHot
-                    ? 'bg-red-500/10 text-red-600'
-                    : 'bg-sky-500/10 text-sky-600'
+                    ? 'bg-sky-500/10 text-sky-600'
+                    : 'bg-red-500/10 text-red-600'
               )}
             >
               {rank}
             </div>
             <Avatar size="sm">
-              <AvatarFallback className={cn(isHot ? 'text-red-600' : 'text-sky-600')}>
+              <AvatarFallback className={cn(isHot ? 'text-sky-600' : 'text-red-600')}>
                 {comment.authorName.slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -160,7 +160,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
             <span
               className={cn(
                 'shrink-0 text-base sm:text-lg font-bold tabular-nums',
-                isHot ? 'text-red-600' : 'text-sky-600'
+                isHot ? 'text-sky-600' : 'text-red-600'
               )}
             >
               {formatINR(comment.amountPaise)}
@@ -170,9 +170,9 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
             {comment.body}
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-            <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-red-600' : 'text-sky-600')}>
-              {isHot ? <Flame className="size-3" /> : <Snowflake className="size-3" />}
-              {isHot ? 'Hot' : 'Not'}
+            <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-sky-600' : 'text-red-600')}>
+              {isHot ? <Zap className="size-3" /> : <Flame className="size-3" />}
+              {isHot ? 'Hype' : 'Hate'}
             </span>
             <span aria-hidden>·</span>
             <span suppressHydrationWarning>{timeAgo(comment.createdAt)}</span>
@@ -184,8 +184,8 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
               className={cn(
                 'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold transition-all disabled:opacity-50',
                 isHot
-                  ? 'border-red-500/30 bg-red-500/10 text-red-600 shadow-[0_0_8px_rgba(239,68,68,0.45)] hover:bg-red-500/20 hover:shadow-[0_0_14px_rgba(239,68,68,0.65)]'
-                  : 'border-sky-500/30 bg-sky-500/10 text-sky-600 shadow-[0_0_8px_rgba(59,130,246,0.45)] hover:bg-sky-500/20 hover:shadow-[0_0_14px_rgba(59,130,246,0.65)]'
+                  ? 'border-sky-500/30 bg-sky-500/10 text-sky-600 shadow-[0_0_8px_rgba(59,130,246,0.45)] hover:bg-sky-500/20 hover:shadow-[0_0_14px_rgba(59,130,246,0.65)]'
+                  : 'border-red-500/30 bg-red-500/10 text-red-600 shadow-[0_0_8px_rgba(239,68,68,0.45)] hover:bg-red-500/20 hover:shadow-[0_0_14px_rgba(239,68,68,0.65)]'
               )}
             >
               {isUpvoting ? (

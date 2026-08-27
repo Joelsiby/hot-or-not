@@ -162,8 +162,8 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         currency: orderData.currency,
         order_id: orderData.orderId,
         name: 'hot-or-not',
-        description: `${side === 'hot' ? 'Hot' : 'Not'} take on ${movieSlug}`,
-        theme: { color: side === 'hot' ? '#ef4444' : '#0ea5e9' },
+        description: `${side === 'hot' ? 'Hype' : 'Hate'} take on ${movieSlug}`,
+        theme: { color: side === 'hot' ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {
           try {
             const verifyRes = await fetch('/api/razorpay/verify', {
@@ -211,11 +211,11 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
               side === 'hot'
-                ? 'bg-red-500 text-white'
+                ? 'bg-sky-500 text-white'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            🔥 Hot
+            ⚡ Hype
           </button>
           <button
             type="button"
@@ -223,17 +223,17 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
               side === 'not'
-                ? 'bg-sky-500 text-white'
+                ? 'bg-red-500 text-white'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            ❄️ Not
+            🔥 Hate
           </button>
         </div>
         <input
           type="text"
           placeholder={
-            side === 'hot' ? "What's making this a Hot take?" : "What's making this a Not take?"
+            side === 'hot' ? "What's making this a Hype take?" : "What's making this a Hate take?"
           }
           value={body}
           onChange={(e) => setBody(e.target.value)}

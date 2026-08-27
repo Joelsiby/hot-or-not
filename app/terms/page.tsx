@@ -48,7 +48,7 @@ export default function TermsPage() {
                 <h2>What the Service is</h2>
                 <p>
                   hot-or-not is a public feed of fan opinion about movies. Posting a comment as
-                  &quot;Hot&quot; (in favour) or &quot;Not&quot; (critical) costs a fixed ₹20, and you
+                  &quot;Hype&quot; (in favour) or &quot;Hate&quot; (critical) costs a fixed ₹20, and you
                   may pay more than that to claim a higher starting position. Upvoting any comment
                   also costs ₹20 per upvote; each paid upvote raises that comment&apos;s position and
                   adds to its side&apos;s running total, shown on the vote meter.

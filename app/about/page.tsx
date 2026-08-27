@@ -13,7 +13,7 @@ export default function AboutPage() {
             <div className="mt-8 space-y-6 text-muted-foreground">
               <p>
                 Hot or Not is a public arena for movie takes. Pick a movie, then argue for it in the
-                Hot column or against it in the Not column. There are no ads, no API keys, and no
+                Hype column or against it in the Hate column. There are no ads, no API keys, and no
                 revenue share — just fans versus critics.
               </p>
               <p>
