@@ -75,25 +75,34 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
       )}
     >
       <div className="flex gap-3">
-        <div
-          className={cn(
-            'shrink-0 size-6 rounded-full flex items-center justify-center text-[11px] font-bold',
-            topPaid
-              ? isHot
-                ? 'bg-red-500 text-white'
-                : 'bg-blue-500 text-white'
-              : isHot
-                ? 'bg-orange-500/10 text-orange-600'
-                : 'bg-sky-500/10 text-sky-600'
+        <div className="flex shrink-0 flex-col items-center gap-2">
+          <div
+            className={cn(
+              'flex size-6 items-center justify-center rounded-full text-[11px] font-bold',
+              topPaid
+                ? isHot
+                  ? 'bg-red-500 text-white'
+                  : 'bg-blue-500 text-white'
+                : isHot
+                  ? 'bg-orange-500/10 text-orange-600'
+                  : 'bg-sky-500/10 text-sky-600'
+            )}
+          >
+            {rank}
+          </div>
+          <Avatar size="sm">
+            <AvatarFallback className={cn(isHot ? 'text-orange-600' : 'text-sky-600')}>
+              {comment.authorName.slice(0, 1).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          {comment.imageUrl && comment.thumbnailUrl && (
+            <HoverImage
+              thumbnailUrl={comment.thumbnailUrl}
+              fullUrl={comment.imageUrl}
+              alt={`Image from ${comment.authorName}`}
+            />
           )}
-        >
-          {rank}
         </div>
-        <Avatar size="sm" className="shrink-0">
-          <AvatarFallback className={cn(isHot ? 'text-orange-600' : 'text-sky-600')}>
-            {comment.authorName.slice(0, 1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <span className="font-bold text-[15px] leading-snug truncate">{comment.authorName}</span>
@@ -109,15 +118,6 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           <p className="text-sm text-muted-foreground mt-0.5 whitespace-pre-wrap break-words">
             {comment.body}
           </p>
-          {comment.imageUrl && comment.thumbnailUrl && (
-            <div className="mt-2">
-              <HoverImage
-                thumbnailUrl={comment.thumbnailUrl}
-                fullUrl={comment.imageUrl}
-                alt={`Image from ${comment.authorName}`}
-              />
-            </div>
-          )}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
             <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-orange-600' : 'text-sky-600')}>
               {isHot ? <Flame className="size-3" /> : <Snowflake className="size-3" />}

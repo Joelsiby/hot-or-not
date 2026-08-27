@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Minus, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { PriceStepper } from '@/components/price-stepper';
 import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
@@ -38,7 +38,6 @@ export function UpvoteConfirmModal({
 }: UpvoteConfirmModalProps) {
   const [agreed, setAgreed] = useState(false);
   const isHot = comment.side === 'hot';
-  const canDecrease = amountPaise > BASE_PRICE_PAISE;
 
   return (
     <Dialog
@@ -61,28 +60,12 @@ export function UpvoteConfirmModal({
         <div className="mt-3 flex items-center justify-between rounded-xl bg-muted p-4">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Cost</div>
-            <div className="mt-1 flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => canDecrease && onAmountChange(amountPaise - BASE_PRICE_PAISE)}
-                disabled={!canDecrease}
-                className="inline-flex items-center justify-center size-6 rounded-full bg-background hover:bg-border transition-colors disabled:opacity-40"
-              >
-                <Minus className="size-3" />
-              </button>
-              <span
-                className={cn('text-lg font-bold tabular-nums min-w-16 text-center', isHot ? 'text-orange-600' : 'text-sky-600')}
-              >
-                {formatINR(amountPaise)}
-              </span>
-              <button
-                type="button"
-                onClick={() => onAmountChange(amountPaise + BASE_PRICE_PAISE)}
-                className="inline-flex items-center justify-center size-6 rounded-full bg-background hover:bg-border transition-colors"
-              >
-                <Plus className="size-3" />
-              </button>
-            </div>
+            <PriceStepper
+              amountPaise={amountPaise}
+              onAmountChange={onAmountChange}
+              className="mt-1"
+              valueClassName={cn('text-lg', isHot ? 'text-orange-600' : 'text-sky-600')}
+            />
           </div>
           <div className="text-right">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">

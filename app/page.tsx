@@ -89,7 +89,7 @@ export default function Home() {
             </div>
 
             <div className="mb-6">
-              <VoteMeter hotPaise={hotPaise} notPaise={notPaise} />
+              <VoteMeter hotPaise={hotPaise} notPaise={notPaise} topAuthorName={comments[0]?.authorName} />
             </div>
 
             <CommentComposer
