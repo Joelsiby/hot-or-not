@@ -16,11 +16,11 @@ import type { NextConfig } from "next"
 // Next automatically applies to its own inline scripts) — worth doing
 // later, but 'unsafe-inline' is the correct default until that's in.
 const scriptSrc = process.env.NODE_ENV === "development"
-	? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.umami.is https://*.polar.sh https://vercel.live"
-	: "script-src 'self' 'unsafe-inline' https://cloud.umami.is https://*.polar.sh https://vercel.live"
+	? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.umami.is https://*.polar.sh https://vercel.live https://checkout.razorpay.com"
+	: "script-src 'self' 'unsafe-inline' https://cloud.umami.is https://*.polar.sh https://vercel.live https://checkout.razorpay.com"
 
 const securityHeaders = [
-	{ key: "Content-Security-Policy", value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss://ws-us3.pusher.com; frame-src 'self' https://*.polar.sh https://vercel.live; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.polar.sh` },
+	{ key: "Content-Security-Policy", value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss://ws-us3.pusher.com; frame-src 'self' https://*.polar.sh https://vercel.live https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.polar.sh` },
 	{ key: "X-Frame-Options", value: "DENY" },
 	{ key: "X-Content-Type-Options", value: "nosniff" },
 	{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

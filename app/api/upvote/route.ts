@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
-import { invalidateCommentsCache } from '@/lib/comments';
+import { razorpay } from '@/lib/razorpay';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
 import { rateLimitUpvoting, getClientIdentifier } from '@/lib/rate-limit';
 import { limitRequestSize } from '@/lib/request-limiter';
 
-// NOTE: no payment is actually collected yet — same deliberate placeholder
-// as posting (see app/api/comments/route.ts). Confirming the upvote modal
-// just writes the base price straight onto the comment's running total via
-// increment_comment_upvote(). Don't ship this to a public, adversarial
-// audience without wiring a real charge to this — right now anyone can
-// upvote for free by hitting this route directly.
+// Creates a Razorpay order for one upvote. The actual upvote isn't applied
+// here — that only happens once app/api/razorpay/verify/route.ts confirms
+// the payment signature after checkout completes. UPI, cards, netbanking,
+// and wallets are all offered automatically by Razorpay's standard
+// Checkout — nothing here restricts which methods show.
 export async function POST(request: NextRequest) {
   // Check request size limit
   const sizeLimitError = limitRequestSize(request);
@@ -18,23 +17,23 @@ export async function POST(request: NextRequest) {
 
   // Rate limiting based on robust client identification
   const identifier = getClientIdentifier(request);
-  
+
   const rateLimitResult = await rateLimitUpvoting(identifier);
-  
+
   if (!rateLimitResult.success) {
     return NextResponse.json(
-      { 
+      {
         error: 'Too many upvotes. Please try again later.',
-        retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000)
+        retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
       },
-      { 
+      {
         status: 429,
         headers: {
           'X-RateLimit-Limit': rateLimitResult.limit.toString(),
           'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
           'X-RateLimit-Reset': rateLimitResult.reset.toString(),
           'Retry-After': Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
-        }
+        },
       }
     );
   }
@@ -76,25 +75,46 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
   }
 
-  const { error } = await supabase.rpc('increment_comment_upvote', {
-    p_comment_id: sanitizedCommentId,
-    p_amount_paise: amountPaise,
+  let order;
+  try {
+    order = await razorpay.orders.create({
+      amount: amountPaise, // Razorpay amounts are paise too — no conversion needed
+      currency: 'INR',
+      // Razorpay caps receipt at 56 chars — the full UUID + prefix + full
+      // timestamp ran over that by one, so this only keeps the comment
+      // id's last 12 chars plus a base36 timestamp for uniqueness.
+      receipt: `uv_${sanitizedCommentId.slice(-12)}_${Date.now().toString(36)}`,
+      notes: { commentId: sanitizedCommentId, movieSlug: sanitizedMovieSlug },
+    });
+  } catch {
+    return NextResponse.json({ error: 'Failed to start checkout' }, { status: 500 });
+  }
+
+  const { error } = await supabase.from('upvote_payments').insert({
+    comment_id: sanitizedCommentId,
+    movie_slug: sanitizedMovieSlug,
+    amount_paise: amountPaise,
+    razorpay_order_id: order.id,
+    status: 'pending',
   });
 
   if (error) {
     return NextResponse.json({ error: 'Failed to record upvote' }, { status: 500 });
   }
 
-  await invalidateCommentsCache(sanitizedMovieSlug);
-
   return NextResponse.json(
-    { ok: true },
+    {
+      orderId: order.id,
+      amountPaise,
+      currency: 'INR',
+      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    },
     {
       headers: {
         'X-RateLimit-Limit': rateLimitResult.limit.toString(),
         'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
         'X-RateLimit-Reset': rateLimitResult.reset.toString(),
-      }
+      },
     }
   );
 }

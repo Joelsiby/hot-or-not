@@ -21,17 +21,34 @@ create index if not exists comments_movie_slug_idx on comments (movie_slug, crea
 create index if not exists comments_movie_side_rank_idx
   on comments (movie_slug, side, amount_paise desc, created_at desc);
 
--- One row per paid upvote (₹20 base price, fixed). Mirrors a payment
--- ledger so a webhook retry / duplicate delivery can't double-count.
+-- One row per paid upvote (₹20 base price, fixed, or a whole multiple of
+-- it). Mirrors a payment ledger so a webhook retry / duplicate delivery
+-- can't double-count — razorpay_order_id is unique and
+-- increment_comment_upvote() only fires once per row (see the
+-- `status = 'pending'` guard in app/api/razorpay/verify/route.ts).
 create table if not exists upvote_payments (
   id uuid primary key default gen_random_uuid(),
   comment_id uuid not null references comments (id) on delete cascade,
   movie_slug text not null,
   amount_paise integer not null check (amount_paise > 0),
-  polar_checkout_id text not null unique,
+  razorpay_order_id text not null unique,
+  razorpay_payment_id text,
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
   created_at timestamptz not null default now()
 );
+
+-- Migration for a database created before the Razorpay switch (was
+-- Polar's polar_checkout_id) — safe to re-run.
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'upvote_payments' and column_name = 'polar_checkout_id'
+  ) then
+    alter table upvote_payments rename column polar_checkout_id to razorpay_order_id;
+  end if;
+end $$;
+alter table upvote_payments add column if not exists razorpay_payment_id text;
 
 create index if not exists upvote_payments_comment_id_idx on upvote_payments (comment_id);
 

@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { HoverImage } from '@/components/hover-image';
 import { UpvoteConfirmModal } from '@/components/upvote-confirm-modal';
+import { loadRazorpayScript } from '@/lib/load-razorpay-script';
 import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
@@ -33,17 +34,25 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
   const [showUpvoteConfirm, setShowUpvoteConfirm] = useState(false);
   const [upvoteAmount, setUpvoteAmount] = useState(BASE_PRICE_PAISE);
   const [isUpvoting, setIsUpvoting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const isHot = comment.side === 'hot';
 
   const openUpvoteConfirm = () => {
     setUpvoteAmount(BASE_PRICE_PAISE);
+    setPaymentError(null);
     setShowUpvoteConfirm(true);
   };
 
+  // Create the order, open Razorpay Checkout (UPI/cards/netbanking/wallets
+  // all show automatically — nothing here restricts the method list), then
+  // hand the result to the server-side verify route. The upvote is only
+  // ever applied there, after the signature checks out — this handler
+  // succeeding just means the popup ran, not that money moved.
   const confirmUpvote = async () => {
     setIsUpvoting(true);
+    setPaymentError(null);
     try {
-      const res = await fetch('/api/upvote', {
+      const orderRes = await fetch('/api/upvote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -52,13 +61,53 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           amountPaise: upvoteAmount,
         }),
       });
-      if (res.ok) {
-        setShowUpvoteConfirm(false);
-        onUpvoted();
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        setPaymentError(orderData.error || 'Failed to start checkout');
+        setIsUpvoting(false);
+        return;
       }
+      if (!orderData.keyId) {
+        setPaymentError('Payments aren’t configured yet');
+        setIsUpvoting(false);
+        return;
+      }
+
+      await loadRazorpayScript();
+
+      const razorpay = new window.Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amountPaise,
+        currency: orderData.currency,
+        order_id: orderData.orderId,
+        name: 'hot-or-not',
+        description: `Upvote on ${comment.movieSlug}`,
+        theme: { color: isHot ? '#ef4444' : '#0ea5e9' },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(response),
+            });
+            if (verifyRes.ok) {
+              setShowUpvoteConfirm(false);
+              onUpvoted();
+            } else {
+              const verifyData = await verifyRes.json().catch(() => null);
+              setPaymentError(verifyData?.error || 'Payment could not be verified');
+            }
+          } finally {
+            setIsUpvoting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setIsUpvoting(false),
+        },
+      });
+      razorpay.open();
     } catch {
-      // swallow — modal just stays open so the user can retry
-    } finally {
+      setPaymentError('Something went wrong');
       setIsUpvoting(false);
     }
   };
@@ -157,6 +206,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
         amountPaise={upvoteAmount}
         onAmountChange={(next) => setUpvoteAmount(Math.min(MAX_UPVOTE_PAISE, Math.max(BASE_PRICE_PAISE, next)))}
         isSubmitting={isUpvoting}
+        error={paymentError}
         onConfirm={confirmUpvote}
       />
     </Card>

@@ -24,6 +24,7 @@ interface UpvoteConfirmModalProps {
   amountPaise: number;
   onAmountChange: (amountPaise: number) => void;
   isSubmitting: boolean;
+  error?: string | null;
   onConfirm: () => void;
 }
 
@@ -34,6 +35,7 @@ export function UpvoteConfirmModal({
   amountPaise,
   onAmountChange,
   isSubmitting,
+  error,
   onConfirm,
 }: UpvoteConfirmModalProps) {
   const [agreed, setAgreed] = useState(false);
@@ -86,12 +88,14 @@ export function UpvoteConfirmModal({
           </span>
         </label>
 
+        {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={!agreed || isSubmitting}>
-            {isSubmitting ? 'Upvoting…' : `Upvote for ${formatINR(amountPaise)}`}
+            {isSubmitting ? 'Opening checkout…' : `Pay ${formatINR(amountPaise)}`}
           </Button>
         </DialogFooter>
       </DialogContent>
