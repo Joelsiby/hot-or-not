@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PostConfirmModal } from '@/components/post-confirm-modal';
+import { loadRazorpayScript } from '@/lib/load-razorpay-script';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Comment, Side } from '@/lib/comments-data';
@@ -102,6 +103,12 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
     setShowConfirm(true);
   };
 
+  // Posting is paid, same as upvoting: uploads the image (free — that's
+  // just storage), creates a Razorpay order for the chosen claim price,
+  // opens Checkout (UPI/cards/netbanking/wallets all show automatically),
+  // then hands the result to the server-side verify route. The comment
+  // itself is only written to the feed there, after the signature checks
+  // out — this succeeding just means the popup ran, not that money moved.
   const submitComment = async () => {
     setIsSubmitting(true);
     setError(null);
@@ -116,12 +123,13 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) {
           setError(uploadData.error || 'Image upload failed');
+          setIsSubmitting(false);
           return;
         }
         imageUrl = uploadData.url;
       }
 
-      const res = await fetch('/api/comments', {
+      const orderRes = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -134,26 +142,61 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
           amountPaise,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Failed to post comment');
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        setError(orderData.error || 'Failed to start checkout');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!orderData.keyId) {
+        setError('Payments aren’t configured yet');
+        setIsSubmitting(false);
         return;
       }
 
-      try {
-        localStorage.setItem(USERNAME_STORAGE_KEY, username.trim());
-      } catch {
-        // localStorage unavailable — not worth surfacing an error over
-      }
+      await loadRazorpayScript();
 
-      setBody('');
-      setAmountPaise(BASE_PRICE_PAISE);
-      clearImage();
-      setShowConfirm(false);
-      onPosted();
+      const razorpay = new window.Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amountPaise,
+        currency: orderData.currency,
+        order_id: orderData.orderId,
+        name: 'hot-or-not',
+        description: `${side === 'hot' ? 'Hot' : 'Not'} take on ${movieSlug}`,
+        theme: { color: side === 'hot' ? '#ef4444' : '#0ea5e9' },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(response),
+            });
+            if (verifyRes.ok) {
+              try {
+                localStorage.setItem(USERNAME_STORAGE_KEY, username.trim());
+              } catch {
+                // localStorage unavailable — not worth surfacing an error over
+              }
+              setBody('');
+              setAmountPaise(BASE_PRICE_PAISE);
+              clearImage();
+              setShowConfirm(false);
+              onPosted();
+            } else {
+              const verifyData = await verifyRes.json().catch(() => null);
+              setError(verifyData?.error || 'Payment could not be verified');
+            }
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setIsSubmitting(false),
+        },
+      });
+      razorpay.open();
     } catch {
       setError('Something went wrong');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -252,6 +295,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         }
         comments={comments}
         isSubmitting={isSubmitting}
+        error={error}
         onConfirm={submitComment}
       />
     </div>

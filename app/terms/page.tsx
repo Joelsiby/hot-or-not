@@ -48,9 +48,10 @@ export default function TermsPage() {
                 <h2>What the Service is</h2>
                 <p>
                   hot-or-not is a public feed of fan opinion about movies. Posting a comment as
-                  &quot;Hot&quot; (in favour) or &quot;Not&quot; (critical) is free. You may pay a
-                  fixed ₹20 to upvote any comment; each paid upvote raises that comment&apos;s
-                  position and adds to its side&apos;s running total, shown on the vote meter.
+                  &quot;Hot&quot; (in favour) or &quot;Not&quot; (critical) costs a fixed ₹20, and you
+                  may pay more than that to claim a higher starting position. Upvoting any comment
+                  also costs ₹20 per upvote; each paid upvote raises that comment&apos;s position and
+                  adds to its side&apos;s running total, shown on the vote meter.
                 </p>
                 <p>
                   A payment buys one upvote at the moment it&apos;s fulfilled. It does not buy a
@@ -78,24 +79,25 @@ export default function TermsPage() {
               <section>
                 <h2>Payments and taxes</h2>
                 <p>
-                  Checkout is processed by Polar, acting as merchant of record. We do not collect or
-                  store full payment-card numbers. Polar&apos;s terms and privacy notice also apply
-                  to the payment itself. Amounts are priced in Indian Rupees (₹). Applicable taxes
-                  may be added at checkout.
+                  Checkout is processed by Razorpay. We do not collect or store your card, UPI, or
+                  bank details — Razorpay handles that directly. Razorpay&apos;s terms and privacy
+                  notice also apply to the payment itself. Amounts are priced in Indian Rupees (₹).
+                  Applicable taxes may be added at checkout.
                 </p>
                 <p>
-                  The upvote price is fixed and shown before you pay. Completing checkout is an offer
-                  to buy one upvote on that comment. The upvote is applied when payment is confirmed
-                  by the payment webhook, at whatever position that pushes the comment to.
+                  The price is fixed and shown before you pay. Completing checkout is an offer to buy
+                  one post or one upvote at that price. It&apos;s applied the moment we verify your
+                  payment, at whatever position that pushes the comment to.
                 </p>
               </section>
 
               <section>
                 <h2>No refunds</h2>
                 <p>
-                  All payments are final and not refundable. An upvote is a digital service that
-                  begins as soon as payment is confirmed: the comment&apos;s position and total are
-                  updated immediately. Being pushed back down later by other upvotes, downtime, or a
+                  All payments are final and not refundable. Posting a comment and upvoting one are
+                  both digital services that begin as soon as payment is confirmed: the comment is
+                  published (for a post) or its position and total are updated (for an upvote)
+                  immediately. Being pushed back down later by other posts or upvotes, downtime, or a
                   later removal of the comment for breach of these Terms does not create a refund.
                 </p>
                 <p>
@@ -104,7 +106,7 @@ export default function TermsPage() {
                   period to the extent that law allows that waiver. Where a mandatory consumer right
                   cannot be waived, we honor that right. Chargebacks or reversed payments without a
                   legally required basis are a breach of these Terms; we may remove the associated
-                  upvote and refuse future use of the Service.
+                  comment or upvote and refuse future use of the Service.
                 </p>
               </section>
 

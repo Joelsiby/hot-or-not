@@ -30,8 +30,8 @@ export default function Home() {
   );
   const [isLoading, setIsLoading] = useState(true);
 
-  // Land back on whichever movie the user was upvoting on after a Polar
-  // checkout redirect (?movie=slug), instead of always resetting to Toxic.
+  // Support landing directly on a specific movie via ?movie=slug (e.g. a
+  // shared link), instead of always resetting to Toxic.
   useEffect(() => {
     const movie = new URLSearchParams(window.location.search).get('movie');
     if (movie && getMovie(movie)) {

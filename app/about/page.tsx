@@ -17,10 +17,10 @@ export default function AboutPage() {
                 revenue share — just fans versus critics.
               </p>
               <p>
-                The concept is simple: post your take for free, then pay ₹20 to upvote any comment
-                — yours or someone else&apos;s. Every upvote pushes that comment higher and adds ₹20
-                to its side&apos;s total, so the meter above each movie always shows who&apos;s
-                actually winning.
+                The concept is simple: pay ₹20 to post your take, then pay ₹20 to upvote any comment
+                — yours or someone else&apos;s. Every payment pushes that comment higher and adds to
+                its side&apos;s total, so the meter above each movie always shows who&apos;s actually
+                winning.
               </p>
               <p>
                 This project was built as a simple side project to explore paid upvotes and

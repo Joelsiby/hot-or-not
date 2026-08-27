@@ -15,10 +15,13 @@ export default function RulesPage() {
                 <h2 className="text-xl font-semibold mb-3">Hot vs Not</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
                   <li>Every movie has two columns: Hot (in favour) and Not (critical).</li>
-                  <li>Posting a comment is free — pick a side and write your take.</li>
                   <li>
-                    The meter above the columns shows how much has been paid to upvote each side, so
-                    everyone can see who&apos;s winning in real time.
+                    Posting a comment costs a flat ₹20 minimum — pick a side, write your take, and
+                    optionally pay more than the base price to claim a higher starting rank.
+                  </li>
+                  <li>
+                    The meter above the columns shows how much has been paid on each side (posts and
+                    upvotes together), so everyone can see who&apos;s winning in real time.
                   </li>
                 </ul>
               </section>
@@ -58,7 +61,10 @@ export default function RulesPage() {
               <section>
                 <h2 className="text-xl font-semibold mb-3">After you pay</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>A completed ₹20 payment is what registers the upvote — nothing counts until then.</li>
+                  <li>
+                    A completed payment is what registers a post or an upvote — nothing counts until
+                    then.
+                  </li>
                 </ul>
               </section>
             </div>

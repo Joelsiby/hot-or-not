@@ -29,6 +29,7 @@ interface PostConfirmModalProps {
   onAmountChange: (amountPaise: number) => void;
   comments: Comment[];
   isSubmitting: boolean;
+  error?: string | null;
   onConfirm: () => void;
 }
 
@@ -51,6 +52,7 @@ export function PostConfirmModal({
   onAmountChange,
   comments,
   isSubmitting,
+  error,
   onConfirm,
 }: PostConfirmModalProps) {
   const [agreed, setAgreed] = useState(false);
@@ -135,12 +137,14 @@ export function PostConfirmModal({
           Rules
         </Link>
 
+        {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={!agreed || !username.trim() || isSubmitting}>
-            {isSubmitting ? 'Posting…' : `Post at #${rank}`}
+            {isSubmitting ? 'Opening checkout…' : `Pay & post at #${rank}`}
           </Button>
         </DialogFooter>
       </DialogContent>

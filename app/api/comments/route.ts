@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
-import { getComments, invalidateCommentsCache } from '@/lib/comments';
+import { getComments } from '@/lib/comments';
 import { getMovie } from '@/lib/movies';
+import { razorpay } from '@/lib/razorpay';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
 import { rateLimitCommentPosting, getClientIdentifier } from '@/lib/rate-limit';
 import { limitRequestSize } from '@/lib/request-limiter';
@@ -16,6 +17,10 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ items });
 }
 
+// Posting is paid, same as upvoting: this creates a Razorpay order and
+// holds the comment's content in comment_payments — the comment itself
+// isn't written to `comments` until app/api/razorpay/verify/route.ts
+// confirms the payment signature.
 export async function POST(request: NextRequest) {
   // Check request size limit
   const sizeLimitError = limitRequestSize(request);
@@ -23,23 +28,23 @@ export async function POST(request: NextRequest) {
 
   // Rate limiting based on robust client identification
   const identifier = getClientIdentifier(request);
-  
+
   const rateLimitResult = await rateLimitCommentPosting(identifier);
-  
+
   if (!rateLimitResult.success) {
     return NextResponse.json(
-      { 
+      {
         error: 'Too many comments. Please try again later.',
-        retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000)
+        retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
       },
-      { 
+      {
         status: 429,
         headers: {
           'X-RateLimit-Limit': rateLimitResult.limit.toString(),
           'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
           'X-RateLimit-Reset': rateLimitResult.reset.toString(),
           'Retry-After': Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
-        }
+        },
       }
     );
   }
@@ -67,9 +72,9 @@ export async function POST(request: NextRequest) {
   }
 
   // Sanitize inputs to prevent XSS
-  const sanitizedName = authorName.trim().replace(/[<>]/g, '');
-  const sanitizedText = text.trim().replace(/[<>]/g, '');
-  
+  const sanitizedName = authorName.trim().replace(/[<>]/g, '').slice(0, 40);
+  const sanitizedText = text.trim().replace(/[<>]/g, '').slice(0, 1000);
+
   if (sanitizedName.length === 0) {
     return NextResponse.json({ error: 'Username is required' }, { status: 400 });
   }
@@ -77,46 +82,56 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Comment text is required' }, { status: 400 });
   }
 
-  // NOTE: no payment is actually collected yet — the chosen claim price is
-  // trusted from the client and written straight to amount_paise. This is
-  // a deliberate placeholder ("claim a spot" like outbid.lol, base price
-  // fixed at ₹20) until real checkout is wired in for posting; anyone can
-  // currently claim any rank for free. Don't ship this to a public,
-  // adversarial audience without hooking a real charge to this amount.
+  // Base price is the floor — someone claiming a higher rank pays a whole
+  // multiple of it, same rounding rule as an upvote.
   const amountPaise =
     typeof amountPaiseInput === 'number' && Number.isFinite(amountPaiseInput) && amountPaiseInput > 0
-      ? Math.round(amountPaiseInput / BASE_PRICE_PAISE) * BASE_PRICE_PAISE
-      : 0;
+      ? Math.max(BASE_PRICE_PAISE, Math.round(amountPaiseInput / BASE_PRICE_PAISE) * BASE_PRICE_PAISE)
+      : BASE_PRICE_PAISE;
 
-  const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('comments')
-    .insert({
-      movie_slug: movieSlug,
-      side,
-      author_name: sanitizedName.slice(0, 40),
-      body: sanitizedText.slice(0, 1000),
-      image_url: imageUrl || null,
-      thumbnail_url: thumbnailUrl || null,
-      amount_paise: amountPaise,
-    })
-    .select('id')
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: 'Failed to post comment' }, { status: 500 });
+  let order;
+  try {
+    order = await razorpay.orders.create({
+      amount: amountPaise,
+      currency: 'INR',
+      // Razorpay caps receipt at 56 chars.
+      receipt: `post_${movieSlug.slice(0, 20)}_${Date.now().toString(36)}`,
+      notes: { movieSlug, side },
+    });
+  } catch {
+    return NextResponse.json({ error: 'Failed to start checkout' }, { status: 500 });
   }
 
-  await invalidateCommentsCache(movieSlug);
+  const supabase = getSupabaseServerClient();
+  const { error } = await supabase.from('comment_payments').insert({
+    movie_slug: movieSlug,
+    side,
+    author_name: sanitizedName,
+    body: sanitizedText,
+    image_url: imageUrl || null,
+    thumbnail_url: thumbnailUrl || null,
+    amount_paise: amountPaise,
+    razorpay_order_id: order.id,
+    status: 'pending',
+  });
+
+  if (error) {
+    return NextResponse.json({ error: 'Failed to start checkout' }, { status: 500 });
+  }
 
   return NextResponse.json(
-    { id: data.id },
+    {
+      orderId: order.id,
+      amountPaise,
+      currency: 'INR',
+      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    },
     {
       headers: {
         'X-RateLimit-Limit': rateLimitResult.limit.toString(),
         'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
         'X-RateLimit-Reset': rateLimitResult.reset.toString(),
-      }
+      },
     }
   );
 }

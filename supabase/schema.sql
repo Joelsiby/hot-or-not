@@ -52,12 +52,37 @@ alter table upvote_payments add column if not exists razorpay_payment_id text;
 
 create index if not exists upvote_payments_comment_id_idx on upvote_payments (comment_id);
 
+-- Posting is paid too now — a new comment doesn't exist until payment
+-- clears, so its content has to live somewhere in the meantime. One row
+-- per checkout attempt; app/api/razorpay/verify/route.ts only inserts
+-- into `comments` once the signature checks out, then marks this row
+-- paid. The `status = 'pending'` guard makes that idempotent the same way
+-- it does for upvote_payments.
+create table if not exists comment_payments (
+  id uuid primary key default gen_random_uuid(),
+  movie_slug text not null,
+  side text not null check (side in ('hot', 'not')),
+  author_name text not null,
+  body text not null,
+  image_url text,
+  thumbnail_url text,
+  amount_paise integer not null check (amount_paise > 0),
+  razorpay_order_id text not null unique,
+  razorpay_payment_id text,
+  comment_id uuid references comments (id) on delete set null,
+  status text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists comment_payments_status_idx on comment_payments (status);
+
 -- All reads/writes go through server-only route handlers using the service
 -- role key, so no public RLS policies are required. If you later add
 -- client-side reads with the anon key, enable RLS and add a public select
 -- policy on `comments`.
 alter table comments enable row level security;
 alter table upvote_payments enable row level security;
+alter table comment_payments enable row level security;
 
 -- RLS being on isn't what actually blocks the app — Postgres' own table
 -- privileges are checked first, and Supabase's newer sb_secret_ keys don't
@@ -66,6 +91,7 @@ alter table upvote_payments enable row level security;
 -- comments" even though the service role itself bypasses RLS.
 grant select, insert, update, delete on comments to service_role;
 grant select, insert, update, delete on upvote_payments to service_role;
+grant select, insert, update, delete on comment_payments to service_role;
 
 create or replace function increment_comment_upvote(p_comment_id uuid, p_amount_paise integer)
 returns void as $$
