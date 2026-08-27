@@ -1,9 +1,11 @@
+import type { Metadata } from 'next';
 import { Geist_Mono, Inter } from 'next/font/google';
 
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
 import { cn } from '@/lib/utils';
+import { getSiteUrl } from '@/lib/site-url';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -11,6 +13,13 @@ const fontMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
 });
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
+  title: 'Hot or Not',
+  description:
+    'Pick a movie, argue for it in the Hot column or against it in the Not column. Pay ₹100 to upvote a take and push it up.',
+};
 
 export default function RootLayout({
   children,

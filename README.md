@@ -145,6 +145,13 @@ The mechanic is: read a movie's comment thread often (cheap, cached), write to i
 4. Flow: clicking the upvote arrow on a comment posts its ID to `POST /api/upvote` (`app/api/upvote/route.ts`), which creates a ₹100 Polar checkout and redirects the browser to Polar. On successful payment, the `order.paid` webhook (`app/api/webhooks/polar/route.ts`) increments that comment's `upvotes`/`amount_paise` in Supabase and busts the Redis cache for that movie.
 5. Use `POLAR_SERVER=sandbox` while testing — Polar's sandbox lets you complete checkouts without a real card.
 
+## Deploying to Vercel
+
+1. Push this repo to GitHub and [import it into Vercel](https://vercel.com/new) — it's a standard Next.js app, so framework detection, build command, and the pnpm lockfile are all picked up automatically. No `vercel.json` needed.
+2. Add the environment variables from `.env.example` under Project Settings → Environment Variables. The app builds and deploys fine with none of them set — it just falls back to the static seed data in `lib/comments-data.ts` until you add them.
+3. `NEXT_PUBLIC_SITE_URL` is optional: if you skip it, `lib/site-url.ts` falls back to Vercel's own `VERCEL_URL`, so Polar checkout redirects and the sitemap still resolve to the right deployment URL. Set it once you have a custom domain.
+4. Point your Polar webhook at `https://<your-vercel-domain>/api/webhooks/polar` and your Supabase Storage bucket stays public regardless of host — nothing else is Vercel-specific.
+
 ## Analytics
 
 Analytics are powered by [Umami](https://umami.is), a privacy-friendly, open-source alternative to Google Analytics. The tracking script (`components/umami-analytics.tsx`) only loads when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set, so it's a no-op in local development unless you configure it.

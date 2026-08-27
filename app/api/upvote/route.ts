@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { polar } from '@/lib/polar';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { getSiteUrl } from '@/lib/site-url';
 
 // Every upvote costs the fixed base price (₹100) — there's no bidding here,
 // just "pay to push this comment up." Statement descriptor: set it in your
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     prices: {
       [productId]: [{ amountType: 'fixed', priceAmount: BASE_PRICE_PAISE, priceCurrency: 'inr' }],
     },
-    successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/?movie=${movieSlug}&upvoted=1`,
+    successUrl: `${getSiteUrl()}/?movie=${movieSlug}&upvoted=1`,
     metadata: {
       commentId,
       movieSlug,
