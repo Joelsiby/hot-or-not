@@ -1,28 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LatestActivitySkeleton } from '@/components/latest-activity-skeleton';
+import { cn } from '@/lib/utils';
+import type { Comment } from '@/lib/comments-data';
 
-const latestActivity = [
-  { name: 'nippy.host', rank: 132, amount: '$14', time: 'just now' },
-  { name: 'maltacasino.se', rank: 169, amount: '$7', time: 'just now' },
-  { name: 'jobfast.co', rank: 233, amount: '$5', time: '2 minutes ago' },
-  { name: 'outrank.so', rank: 1, amount: '$12,052', time: '3 minutes ago' },
-  { name: 'aiapply.co', rank: 131, amount: '$14', time: '4 minutes ago' },
-];
+interface LatestActivityProps {
+  comments: Comment[];
+  isLoading: boolean;
+}
 
-export function LatestActivity() {
-  const [isLoading, setIsLoading] = useState(true);
+function timeAgo(iso: string) {
+  const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+}
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
+export function LatestActivity({ comments, isLoading }: LatestActivityProps) {
   if (isLoading) return <LatestActivitySkeleton />;
+
+  const recent = [...comments]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   return (
     <Card>
@@ -36,29 +38,31 @@ export function LatestActivity() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {latestActivity.map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-sm min-w-0 gap-2">
-              <div className="flex items-center gap-1 min-w-0 flex-1">
-                <Image
-                  src={`https://www.google.com/s2/favicons?domain=${item.name}&sz=32`}
-                  alt={item.name}
-                  width={16}
-                  height={16}
-                  className="rounded flex-shrink-0"
-                  unoptimized
-                />
-                <span className="font-medium truncate">{item.name}</span>
-                <Badge variant="outline" className="text-xs flex-shrink-0">
-                  #{item.rank}
-                </Badge>
-                <span className="text-xs text-muted-foreground flex-shrink-0">·</span>
-                <span className="text-xs text-muted-foreground flex-shrink-0">{item.amount}</span>
+        {recent.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No comments yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {recent.map((comment) => (
+              <div key={comment.id} className="flex items-center justify-between text-sm min-w-0 gap-2">
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span className={cn('shrink-0', comment.side === 'hot' ? 'text-orange-600' : 'text-sky-600')}>
+                    {comment.side === 'hot' ? '🔥' : '❄️'}
+                  </span>
+                  <span className="font-medium shrink-0 max-w-24 truncate">{comment.authorName}</span>
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    {comment.side === 'hot' ? 'Hot' : 'Not'}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground min-w-0 flex-1 truncate">
+                    {comment.body}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground flex-shrink-0" suppressHydrationWarning>
+                  {timeAgo(comment.createdAt)}
+                </span>
               </div>
-              <span className="text-xs text-muted-foreground flex-shrink-0">{item.time}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

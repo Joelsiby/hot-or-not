@@ -25,7 +25,7 @@ export function Header() {
             </Button>
           )}
           <Link href="/" className="font-bold text-xl">
-            outbid.lol
+            hot-or-not
           </Link>
         </div>
         <nav className={cn('flex items-center gap-4', isMobile && 'hidden')}>
@@ -36,7 +36,7 @@ export function Header() {
               pathname === '/' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            Leaderboard
+            Movies
           </Link>
           <Link
             href="/about"

@@ -2,42 +2,56 @@
 
 create extension if not exists "pgcrypto";
 
-create table if not exists leaderboard_entries (
+-- Movies themselves are a static list in `lib/movies.ts` — this table only
+-- holds the fan comments posted under each movie's slug.
+create table if not exists comments (
   id uuid primary key default gen_random_uuid(),
-  url text not null unique,
-  name text not null,
-  bid_cents integer not null check (bid_cents > 0),
-  clicks integer not null default 0,
-  claimed_at timestamptz not null default now()
+  movie_slug text not null,
+  side text not null check (side in ('hot', 'not')),
+  author_name text not null,
+  body text not null,
+  image_url text,
+  thumbnail_url text,
+  upvotes integer not null default 0,
+  amount_paise integer not null default 0,
+  created_at timestamptz not null default now()
 );
 
-create index if not exists leaderboard_entries_bid_cents_idx
-  on leaderboard_entries (bid_cents desc);
+create index if not exists comments_movie_slug_idx on comments (movie_slug, created_at desc);
+create index if not exists comments_movie_side_rank_idx
+  on comments (movie_slug, side, amount_paise desc, created_at desc);
 
-create table if not exists bids (
+-- One row per paid upvote (₹100 base price, fixed). Mirrors a payment
+-- ledger so a webhook retry / duplicate delivery can't double-count.
+create table if not exists upvote_payments (
   id uuid primary key default gen_random_uuid(),
-  entry_url text not null,
-  entry_name text not null,
-  amount_cents integer not null check (amount_cents > 0),
+  comment_id uuid not null references comments (id) on delete cascade,
+  movie_slug text not null,
+  amount_paise integer not null check (amount_paise > 0),
   polar_checkout_id text not null unique,
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
   created_at timestamptz not null default now()
 );
 
-create index if not exists bids_entry_url_idx on bids (entry_url);
+create index if not exists upvote_payments_comment_id_idx on upvote_payments (comment_id);
 
 -- All reads/writes go through server-only route handlers using the service
 -- role key, so no public RLS policies are required. If you later add
--- client-side reads with the anon key, enable RLS and add a public
--- select policy on leaderboard_entries.
-alter table leaderboard_entries enable row level security;
-alter table bids enable row level security;
+-- client-side reads with the anon key, enable RLS and add a public select
+-- policy on `comments`.
+alter table comments enable row level security;
+alter table upvote_payments enable row level security;
 
-create or replace function increment_clicks(entry_url text)
+create or replace function increment_comment_upvote(p_comment_id uuid, p_amount_paise integer)
 returns void as $$
 begin
-  update leaderboard_entries
-  set clicks = clicks + 1
-  where url = entry_url;
+  update comments
+  set upvotes = upvotes + 1,
+      amount_paise = amount_paise + p_amount_paise
+  where id = p_comment_id;
 end;
 $$ language plpgsql;
+
+-- Also create a public storage bucket named `comment-images` (Storage tab
+-- in the Supabase dashboard, "Public bucket" on) for full-size uploads —
+-- thumbnails are stored inline on the row above.

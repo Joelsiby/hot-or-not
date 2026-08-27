@@ -1,0 +1,190 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { ImagePlus, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import type { Side } from '@/lib/comments-data';
+
+interface CommentComposerProps {
+  movieSlug: string;
+  onPosted: () => void;
+}
+
+// Resizes an image file down to `maxDimension` on its longest side and
+// returns a JPEG data URL — keeps both the thumbnail and the full upload
+// small instead of shipping whatever the camera produced.
+function resizeImage(file: File, maxDimension: number, quality: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject(new Error('canvas unsupported'));
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+// A single posting bar for the whole feed — pick Hot or Not, type a take,
+// optionally attach an image, post. Author identity isn't collected here;
+// it'll be pulled from wherever the app's user identity ends up living.
+export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
+  const [side, setSide] = useState<Side>('hot');
+  const [body, setBody] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [fullDataUrl, setFullDataUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are supported');
+      return;
+    }
+    const [thumb, full] = await Promise.all([
+      resizeImage(file, 64, 0.6),
+      resizeImage(file, 1600, 0.85),
+    ]);
+    setThumbnailUrl(thumb);
+    setFullDataUrl(full);
+  };
+
+  const clearImage = () => {
+    setThumbnailUrl(null);
+    setFullDataUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSubmit = async () => {
+    if (!body.trim()) {
+      setError('Write something first');
+      return;
+    }
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      let imageUrl: string | null = null;
+      if (fullDataUrl) {
+        const uploadRes = await fetch('/api/comments/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: fullDataUrl }),
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          setError(uploadData.error || 'Image upload failed');
+          return;
+        }
+        imageUrl = uploadData.url;
+      }
+
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          movieSlug,
+          side,
+          body,
+          imageUrl,
+          thumbnailUrl: imageUrl ? thumbnailUrl : null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to post comment');
+        return;
+      }
+
+      setBody('');
+      clearImage();
+      onPosted();
+    } catch {
+      setError('Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-border p-2">
+      <div className="flex items-center gap-2">
+        <div className="flex rounded-full bg-muted p-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setSide('hot')}
+            className={cn(
+              'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              side === 'hot' ? 'bg-orange-500 text-white' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            🔥 Hot
+          </button>
+          <button
+            type="button"
+            onClick={() => setSide('not')}
+            className={cn(
+              'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              side === 'not' ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            ❄️ Not
+          </button>
+        </div>
+        <input
+          type="text"
+          placeholder={side === 'hot' ? "What's making this a Hot take?" : "What's making this a Not take?"}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          maxLength={280}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !isSubmitting) handleSubmit();
+          }}
+          className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="shrink-0"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <ImagePlus className="size-4" />
+        </Button>
+        <Button size="sm" className="shrink-0" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? 'Posting…' : 'Post'}
+        </Button>
+      </div>
+      {thumbnailUrl && (
+        <div className="relative inline-block mt-2 ml-1">
+          <img src={thumbnailUrl} alt="Upload preview" className="size-14 rounded-lg object-cover border border-border" />
+          <button
+            type="button"
+            onClick={clearImage}
+            className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-foreground text-background flex items-center justify-center"
+          >
+            <X className="size-2.5" />
+          </button>
+        </div>
+      )}
+      {error && <p className="text-xs text-destructive mt-1.5 ml-1">{error}</p>}
+    </div>
+  );
+}

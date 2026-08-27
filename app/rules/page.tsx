@@ -12,65 +12,53 @@ export default function RulesPage() {
             <h1 className="text-4xl font-bold tracking-tight">Rules</h1>
             <div className="mt-8 space-y-8">
               <section>
-                <h2 className="text-xl font-semibold mb-3">How ranking works</h2>
+                <h2 className="text-xl font-semibold mb-3">Hot vs Not</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>New listings are whole US dollars, $5 minimum, $1 at a time.</li>
+                  <li>Every movie has two columns: Hot (in favour) and Not (critical).</li>
+                  <li>Posting a comment is free — pick a side and write your take.</li>
                   <li>
-                    Bids already on the board keep their amount until they raise or get outranked.
-                  </li>
-                  <li>
-                    Paying less than #1 still puts you on the board at whatever rank that bid can
-                    take.
-                  </li>
-                  <li>
-                    Equal bids stay in the order they were placed — the older bid keeps the higher
-                    rank.
+                    The meter above the columns shows how much has been paid to upvote each side, so
+                    everyone can see who&apos;s winning in real time.
                   </li>
                 </ul>
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">Outbidding</h2>
+                <h2 className="text-xl font-semibold mb-3">Upvoting</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
+                  <li>Upvoting costs a flat ₹100 — there&apos;s no bidding, just the base price.</li>
                   <li>
-                    Enter the same website or @handle again to raise that listing to any rank.
+                    Each paid upvote adds ₹100 to that comment&apos;s total and moves it up the
+                    column; comments are ranked by total raised, not just upvote count.
                   </li>
-                  <li>
-                    The new bid must be at least $1 above your current bid; you only pay the
-                    difference.
-                  </li>
-                  <li>Someone else cannot take your rank by paying that difference.</li>
+                  <li>You can upvote any comment, including your own.</li>
                 </ul>
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">What you can list</h2>
+                <h2 className="text-xl font-semibold mb-3">Trending &amp; activity</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>A product website, or an X @handle.</li>
+                  <li>Trending shows the top 3 most-upvoted comments for the selected movie.</li>
+                  <li>Latest activity shows the most recent comments posted, from either side.</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-semibold mb-3">Images</h2>
+                <ul className="space-y-2 text-muted-foreground list-disc list-inside">
+                  <li>You can attach one image to a comment.</li>
                   <li>
-                    Chat and invite links are not allowed — Telegram, WhatsApp, Discord, Messenger,
-                    Signal, and similar.
+                    Images show as a small thumbnail by default — the full-size version only loads
+                    when you hover over it.
                   </li>
                   <li>Links to sexual content are not allowed.</li>
-                  <li>
-                    Query parameters are stripped from listing links. Affiliate, referral, and
-                    tracking URLs will not work.
-                  </li>
-                  <li>
-                    Link shortener URLs are not allowed. If you submit one, it is replaced by the
-                    URL it redirects to.
-                  </li>
                 </ul>
               </section>
 
               <section>
                 <h2 className="text-xl font-semibold mb-3">After you pay</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-                  <li>
-                    Your listing is public. Clicks go to the URL or profile you submitted, without
-                    query parameters.
-                  </li>
-                  <li>A completed payment is what claims the rank.</li>
+                  <li>A completed ₹100 payment is what registers the upvote — nothing counts until then.</li>
                 </ul>
               </section>
             </div>

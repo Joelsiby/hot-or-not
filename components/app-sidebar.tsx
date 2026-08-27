@@ -14,7 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { title: 'Leaderboard', href: '/' },
+  { title: 'Movies', href: '/' },
   { title: 'About', href: '/about' },
   { title: 'Rules', href: '/rules' },
 ];
@@ -31,7 +31,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <Link href="/" className="font-bold text-xl">
-          outbid.lol
+          hot-or-not
         </Link>
       </SidebarHeader>
       <SidebarContent>
