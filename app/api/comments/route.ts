@@ -3,6 +3,8 @@ import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getComments, invalidateCommentsCache } from '@/lib/comments';
 import { getMovie } from '@/lib/movies';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { rateLimitCommentPosting, getClientIdentifier } from '@/lib/rate-limit';
+import { limitRequestSize } from '@/lib/request-limiter';
 
 export async function GET(request: NextRequest) {
   const movieSlug = request.nextUrl.searchParams.get('movie');
@@ -15,6 +17,33 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Check request size limit
+  const sizeLimitError = limitRequestSize(request);
+  if (sizeLimitError) return sizeLimitError;
+
+  // Rate limiting based on robust client identification
+  const identifier = getClientIdentifier(request);
+  
+  const rateLimitResult = await rateLimitCommentPosting(identifier);
+  
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { 
+        error: 'Too many comments. Please try again later.',
+        retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000)
+      },
+      { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+          'Retry-After': Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+        }
+      }
+    );
+  }
+
   const body = await request.json().catch(() => null);
   const movieSlug: string | undefined = body?.movieSlug;
   const side: string | undefined = body?.side;
@@ -37,6 +66,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Comment text is required' }, { status: 400 });
   }
 
+  // Sanitize inputs to prevent XSS
+  const sanitizedName = authorName.trim().replace(/[<>]/g, '');
+  const sanitizedText = text.trim().replace(/[<>]/g, '');
+  
+  if (sanitizedName.length === 0) {
+    return NextResponse.json({ error: 'Username is required' }, { status: 400 });
+  }
+  if (sanitizedText.length === 0) {
+    return NextResponse.json({ error: 'Comment text is required' }, { status: 400 });
+  }
+
   // NOTE: no payment is actually collected yet — the chosen claim price is
   // trusted from the client and written straight to amount_paise. This is
   // a deliberate placeholder ("claim a spot" like outbid.lol, base price
@@ -54,8 +94,8 @@ export async function POST(request: NextRequest) {
     .insert({
       movie_slug: movieSlug,
       side,
-      author_name: authorName.trim().slice(0, 40),
-      body: text.trim().slice(0, 1000),
+      author_name: sanitizedName.slice(0, 40),
+      body: sanitizedText.slice(0, 1000),
       image_url: imageUrl || null,
       thumbnail_url: thumbnailUrl || null,
       amount_paise: amountPaise,
@@ -69,5 +109,14 @@ export async function POST(request: NextRequest) {
 
   await invalidateCommentsCache(movieSlug);
 
-  return NextResponse.json({ id: data.id });
+  return NextResponse.json(
+    { id: data.id },
+    {
+      headers: {
+        'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+        'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+      }
+    }
+  );
 }

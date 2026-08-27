@@ -7,6 +7,36 @@ interface RateLimitResult {
   reset: number;
 }
 
+// More robust IP detection with multiple headers
+export function getClientIdentifier(request: Request | { headers: Headers }): string {
+  // Try multiple headers in order of reliability
+  const headers = request.headers;
+  
+  // Cloudflare, AWS ALB, etc.
+  const cfConnectingIp = headers.get('cf-connecting-ip');
+  if (cfConnectingIp) return cfConnectingIp;
+  
+  // Standard forwarded headers
+  const xForwardedFor = headers.get('x-forwarded-for');
+  if (xForwardedFor) {
+    // Take the first IP (original client) and ignore proxies
+    const ips = xForwardedFor.split(',').map(ip => ip.trim());
+    if (ips.length > 0) return ips[0];
+  }
+  
+  // Real IP header
+  const xRealIp = headers.get('x-real-ip');
+  if (xRealIp) return xRealIp;
+  
+  // Fallback to a combination of headers as a fingerprint
+  const userAgent = headers.get('user-agent') || 'unknown';
+  const acceptLanguage = headers.get('accept-language') || 'unknown';
+  const acceptEncoding = headers.get('accept-encoding') || 'unknown';
+  
+  // Create a simple fingerprint from headers that are harder to spoof
+  return `${userAgent}-${acceptLanguage}-${acceptEncoding}`;
+}
+
 export async function rateLimit(
   identifier: string,
   limit: number = 10,

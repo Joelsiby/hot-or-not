@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadCommentImage } from '@/lib/supabase/storage';
 import { validateImageMetadata, isMimeTypeValid, isExtensionValid } from '@/lib/image-validation';
-import { rateLimitImageUpload } from '@/lib/rate-limit';
+import { rateLimitImageUpload, getClientIdentifier } from '@/lib/rate-limit';
+import { limitRequestSize } from '@/lib/request-limiter';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
 export async function POST(request: NextRequest) {
-  // Rate limiting based on IP address
-  const ip = request.headers.get('x-forwarded-for') || 
-             request.headers.get('x-real-ip') || 
-             'unknown';
+  // Check request size limit
+  const sizeLimitError = limitRequestSize(request);
+  if (sizeLimitError) return sizeLimitError;
+
+  // Rate limiting based on robust client identification
+  const identifier = getClientIdentifier(request);
   
-  const rateLimitResult = await rateLimitImageUpload(ip);
+  const rateLimitResult = await rateLimitImageUpload(identifier);
   
   if (!rateLimitResult.success) {
     return NextResponse.json(
