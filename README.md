@@ -108,8 +108,8 @@ cp .env.example .env.local
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | For checkout | Base URL used for the Polar checkout success redirect. |
-| `SUPABASE_URL` | For live data | Supabase project URL. |
-| `SUPABASE_SERVICE_ROLE_KEY` | For live data | Service-role key — server-only, never expose to the client. |
+| `SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) | For live data | Supabase project URL — base URL only, no `/rest/v1/` suffix. |
+| `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEY`) | For live data | Service-role / secret key — server-only, never expose to the client. |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | For live data | Upstash Redis REST credentials, used to cache each movie's comment thread. |
 | `POLAR_ACCESS_TOKEN` | For checkout | Polar organization access token. |
 | `POLAR_WEBHOOK_SECRET` | For checkout | Secret for verifying incoming Polar webhooks. |
@@ -127,9 +127,9 @@ The mechanic is: read a movie's comment thread often (cheap, cached), write to i
 **1. Supabase (Postgres + Storage)**
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Run `supabase/schema.sql` against it (SQL Editor, or `supabase db push` with the CLI). This creates `comments` (one row per posted take) and `upvote_payments` (one row per checkout attempt).
+2. Run `supabase/schema.sql` against it via the **SQL Editor** (paste the whole file, Run). This creates `comments` (one row per posted take) and `upvote_payments` (one row per upvote checkout attempt, including who paid and when it cleared). Project API keys can't run DDL, so this step has to go through the SQL Editor or `supabase db push` with the CLI — not a route handler.
 3. In the Storage tab, create a **public** bucket named `comment-images` — full-size uploads go here; a tiny thumbnail is stored inline on the `comments` row instead, so cards render instantly and only fetch the full image on hover.
-4. Copy the project URL and the **service role** key (Project Settings → API) into `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`. This key is only ever used server-side, in route handlers.
+4. Copy the project URL and the **service role** (or newer **secret**) key from Project Settings → API into `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (classic keys) or `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SECRET_KEY` (newer `sb_publishable_...`/`sb_secret_...` keys) — either naming works. This key is only ever used server-side, in route handlers.
 
 **2. Upstash Redis**
 

@@ -17,7 +17,7 @@ export const POST = Webhooks({
 
     const { data: payment } = await supabase
       .from('upvote_payments')
-      .update({ status: 'paid' })
+      .update({ status: 'paid', paid_at: new Date().toISOString() })
       .eq('polar_checkout_id', order.checkoutId ?? '')
       .eq('status', 'pending')
       .select('id')
@@ -32,5 +32,18 @@ export const POST = Webhooks({
     });
 
     await invalidateCommentsCache(metadata.movieSlug);
+  },
+  // Keeps the ledger accurate for checkouts that never complete — an
+  // abandoned/expired session, or a card decline — so `upvote_payments`
+  // doesn't sit at "pending" forever for a payment that's never coming.
+  onCheckoutUpdated: async ({ data: checkout }) => {
+    if (checkout.status !== 'expired' && checkout.status !== 'failed') return;
+
+    const supabase = getSupabaseServerClient();
+    await supabase
+      .from('upvote_payments')
+      .update({ status: 'failed' })
+      .eq('polar_checkout_id', checkout.id)
+      .eq('status', 'pending');
   },
 });

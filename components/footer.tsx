@@ -13,6 +13,8 @@ export function Footer() {
             Built by <Link href="https://aniketpawar.com?utm_source=hot-or-not&utm_medium=footer&utm_campaign=attribution" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Aniket Pawar</Link>
           </p>
           <div className="flex items-center gap-4">
+            <Link href="/rules" className="hover:text-foreground transition-colors">Rules</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link href="/stats" className="hover:text-foreground transition-colors">Live stats</Link>
             <Link href="/friends" className="hover:text-foreground transition-colors">Friends</Link>
             <span>Inspired by <a href="https://outbid.lol?utm_source=hot-or-not&utm_medium=footer&utm_campaign=inspiration" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">outbid.lol</a></span>

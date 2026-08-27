@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PostConfirmModal } from '@/components/post-confirm-modal';
 import { cn } from '@/lib/utils';
 import type { Side } from '@/lib/comments-data';
 
@@ -44,6 +45,7 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
   const [fullDataUrl, setFullDataUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File | undefined) => {
@@ -66,11 +68,16 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = async () => {
+  const openConfirm = () => {
     if (!body.trim()) {
       setError('Write something first');
       return;
     }
+    setError(null);
+    setShowConfirm(true);
+  };
+
+  const submitComment = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
@@ -108,6 +115,7 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
 
       setBody('');
       clearImage();
+      setShowConfirm(false);
       onPosted();
     } catch {
       setError('Something went wrong');
@@ -148,7 +156,7 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
           onChange={(e) => setBody(e.target.value)}
           maxLength={280}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !isSubmitting) handleSubmit();
+            if (e.key === 'Enter') openConfirm();
           }}
           className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
         />
@@ -168,8 +176,8 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
         >
           <ImagePlus className="size-4" />
         </Button>
-        <Button size="sm" className="shrink-0" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? 'Posting…' : 'Post'}
+        <Button size="sm" className="shrink-0" onClick={openConfirm}>
+          Post
         </Button>
       </div>
       {thumbnailUrl && (
@@ -185,6 +193,15 @@ export function CommentComposer({ movieSlug, onPosted }: CommentComposerProps) {
         </div>
       )}
       {error && <p className="text-xs text-destructive mt-1.5 ml-1">{error}</p>}
+
+      <PostConfirmModal
+        open={showConfirm}
+        onOpenChange={setShowConfirm}
+        side={side}
+        body={body}
+        isSubmitting={isSubmitting}
+        onConfirm={submitComment}
+      />
     </div>
   );
 }

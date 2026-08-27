@@ -117,7 +117,7 @@ export function CommentCard({ comment, rank, topPaid }: CommentCardProps) {
               )}
               {comment.upvotes}
             </button>
-            <span className="text-xs text-muted-foreground">{formatINR(comment.amountPaise)} raised</span>
+            <span className="text-xs text-muted-foreground">raised {formatINR(comment.amountPaise)}</span>
           </div>
         </div>
       </div>
