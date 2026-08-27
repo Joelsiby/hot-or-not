@@ -40,8 +40,13 @@ export default function Home() {
     }
   }, []);
 
-  const loadComments = useCallback((movieSlug: string) => {
-    setIsLoading(true);
+  // `silent` skips the loading-skeleton flash and the seed-data fallback —
+  // used for background polling, where the old data staying on screen for
+  // one more tick beats a flicker or clobbering real data with seed rows
+  // over a transient network blip.
+  const loadComments = useCallback((movieSlug: string, opts?: { silent?: boolean }) => {
+    const silent = opts?.silent ?? false;
+    if (!silent) setIsLoading(true);
     fetch(`/api/comments?movie=${movieSlug}`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
@@ -49,16 +54,42 @@ export default function Home() {
           setComments(byAmountRaised(data.items));
         }
       })
-      // No backend configured yet (or the request failed) — fall back to seed data.
       .catch(() => {
-        setComments(byAmountRaised(seedComments.filter((c) => c.movieSlug === movieSlug)));
+        // No backend configured yet (or the request failed) — fall back to
+        // seed data, but only on the real initial/movie-switch load.
+        if (!silent) {
+          setComments(byAmountRaised(seedComments.filter((c) => c.movieSlug === movieSlug)));
+        }
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!silent) setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching a movie's comment thread when the selection changes is the effect's whole purpose
     loadComments(selectedSlug);
+  }, [selectedSlug, loadComments]);
+
+  // Poll for changes from other people (new posts, upvotes) so the page
+  // updates on its own — no manual refresh needed. Skips ticks while the
+  // tab is in the background, and refreshes immediately the moment it's
+  // foregrounded again instead of waiting out the rest of the interval.
+  useEffect(() => {
+    const POLL_MS = 7000;
+    const tick = () => {
+      if (document.hidden) return;
+      loadComments(selectedSlug, { silent: true });
+    };
+    const interval = setInterval(tick, POLL_MS);
+    const onVisible = () => {
+      if (!document.hidden) loadComments(selectedSlug, { silent: true });
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [selectedSlug, loadComments]);
 
   const movie = getMovie(selectedSlug)!;
