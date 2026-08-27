@@ -18,10 +18,12 @@ function pick(pool: string[], seed: number, fallback: string) {
   return name || fallback;
 }
 
-// 20 lines, cycling every 5s — every 5th (indexes 4, 9, 14, 19) is the
-// plain factual status; the rest are mockery/hype filler pulling real
-// names from the top 10 commenters on each side (winnerNames/loserNames),
-// roasting whoever's behind and hyping up whoever's ahead.
+// 70 lines, cycling every ROTATE_MS — every 5th index is the plain
+// factual status; the rest are mockery/hype filler pulling real names
+// from the top 10 commenters on each side (winnerNames/loserNames),
+// roasting whoever's behind and hyping up whoever's ahead. The back half
+// leans on Indian movie-Twitter/review-culture slang (FDFS, mass entry,
+// box office, review bombing, pan-India, housefull, hit-ya-flop, etc.).
 function buildLines(
   winner: 'Hot' | 'Not' | null,
   loser: 'Hot' | 'Not' | null,
@@ -54,6 +56,56 @@ function buildLines(
     `${loserName(8)} ki himmat dekho, abhi bhi yahin hai`,
     `Kisi ko jaake bol do ${loserName(9)}, ranking nahi badlegi aaj raat`,
     status,
+    `${loserName(10)} ka review section mein sannata hai`,
+    `FDFS mein hi pata chal gaya tha, ${loserName(11)}`,
+    `Public verdict: ${loserName(12)} ka paisa dooba`,
+    `${winnerName(4)} ne toh box office hi tod diya`,
+    status,
+    `Twitter pe #${l}IsOut trending kar raha hai`,
+    `${loserName(13)}, interval tak hi tha dum`,
+    `Critics vs ${loserName(14)} — dono match nahi kar rahe`,
+    `${winnerName(5)} ka mass entry dekh ke goosebumps aa gaye`,
+    status,
+    `Housefull board utar gaya ${loserName(15)} ke liye`,
+    `${loserName(16)} review bomb ho gaya, RIP`,
+    `Day 1 collection dekh ke ${loserName(17)} chup baith gaya`,
+    `${winnerName(6)} pura pan-India domination kar raha hai`,
+    status,
+    `${loserName(18)} ka cinema hall mein sirf popcorn wala bacha`,
+    `Hit ya flop? ${loserName(19)} ke liye answer pata hai sabko`,
+    `Post-credit scene se zyada excitement ${loserName(0)} mein nahi hai`,
+    `${winnerName(7)} ne single-handedly leaderboard bacha liya`,
+    status,
+    `${loserName(1)} ka trailer hype se zyada flop bada nikla`,
+    `One man army ${winnerName(8)}, baaki sab extras`,
+    `${loserName(2)} ki performance dekh ke public silent ho gayi`,
+    `Mass mass mass — sirf ${winnerName(9)} ke naam ka hai yeh`,
+    status,
+    `${loserName(3)}, bhai theatre chhod ke Netflix pe chala ja`,
+    `Review section mein sirf ${loserName(4)} ke against comments hain`,
+    `${winnerName(0)} ka goosebumps moment sabko yaad rahega`,
+    `Paisa vasool nahi hua ${loserName(5)} ke liye, confirm`,
+    status,
+    `${loserName(6)} ka fanbase bhi ab silent mode mein hai`,
+    `Trending on Twitter: #${loserName(7)}Flopped`,
+    `${winnerName(1)} ne toh interval mein hi jeet li thi`,
+    `Critics rating aur ${loserName(8)} ki izzat dono neeche gaye`,
+    status,
+    `${loserName(9)} ke liye "paisa vasool" ek myth reh gaya`,
+    `${winnerName(2)} ka mass appeal dekh ke sab silent`,
+    `Box office se ${loserName(10)} ka naam hi mit gaya`,
+    `Public review: "${loserName(11)}, kabhi mat aana wapas"`,
+    status,
+    `${winnerName(3)} deserve karta hai ek national award, seriously`,
+    `${loserName(12)} ka scene khatam, credits roll ho gaye`,
+    `FDFS crowd ne bhi ${loserName(13)} ko reject kar diya`,
+    `${winnerName(4)} ka craze dekh ke fans line mein khade hain`,
+    status,
+    `${loserName(14)} flop show confirm ho gaya bhai`,
+    `Review bombing ka record ${loserName(15)} ke naam ho gaya`,
+    `${winnerName(5)} sabse zyada trending kar raha hai abhi`,
+    `Housefull sirf ${winnerName(6)} ke naam pe ho raha hai`,
+    status,
   ];
 }
 
@@ -82,7 +134,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   return (
     <div className="rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-3 text-sm font-semibold">
-        <span className="text-orange-600 shrink-0">🔥 {formatINR(hotPaise)}</span>
+        <span className="text-red-600 shrink-0">🔥 {formatINR(hotPaise)}</span>
         <span
           key={lineIndex}
           className={cn(
@@ -91,7 +143,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
               ? isTied
                 ? 'text-muted-foreground'
                 : winner === 'Hot'
-                  ? 'text-orange-600'
+                  ? 'text-red-600'
                   : 'text-sky-600'
               : 'text-muted-foreground normal-case tracking-normal'
           )}
@@ -102,7 +154,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
       </div>
       <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sky-500/20">
         <div
-          className="h-full rounded-full bg-orange-500 transition-all duration-500"
+          className="h-full rounded-full bg-red-500 transition-all duration-500"
           style={{ width: `${hotPct}%` }}
         />
       </div>

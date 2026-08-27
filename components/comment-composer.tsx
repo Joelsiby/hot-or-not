@@ -168,7 +168,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
               side === 'hot'
-                ? 'bg-orange-500 text-white'
+                ? 'bg-red-500 text-white'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >

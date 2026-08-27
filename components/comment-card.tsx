@@ -67,7 +67,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
     <Card
       className={cn(
         'p-3 border-l-4',
-        isHot ? 'border-l-orange-500 bg-orange-500/5' : 'border-l-sky-500 bg-sky-500/5',
+        isHot ? 'border-l-red-500 bg-red-500/5' : 'border-l-sky-500 bg-sky-500/5',
         topPaid &&
           (isHot
             ? 'ring-2 ring-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]'
@@ -85,14 +85,14 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
                     ? 'bg-red-500 text-white'
                     : 'bg-blue-500 text-white'
                   : isHot
-                    ? 'bg-orange-500/10 text-orange-600'
+                    ? 'bg-red-500/10 text-red-600'
                     : 'bg-sky-500/10 text-sky-600'
               )}
             >
               {rank}
             </div>
             <Avatar size="sm">
-              <AvatarFallback className={cn(isHot ? 'text-orange-600' : 'text-sky-600')}>
+              <AvatarFallback className={cn(isHot ? 'text-red-600' : 'text-sky-600')}>
                 {comment.authorName.slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -111,7 +111,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
             <span
               className={cn(
                 'shrink-0 text-base sm:text-lg font-bold tabular-nums',
-                isHot ? 'text-orange-600' : 'text-sky-600'
+                isHot ? 'text-red-600' : 'text-sky-600'
               )}
             >
               {formatINR(comment.amountPaise)}
@@ -121,7 +121,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
             {comment.body}
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-            <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-orange-600' : 'text-sky-600')}>
+            <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-red-600' : 'text-sky-600')}>
               {isHot ? <Flame className="size-3" /> : <Snowflake className="size-3" />}
               {isHot ? 'Hot' : 'Not'}
             </span>

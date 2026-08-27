@@ -36,7 +36,7 @@ export function TrendingSection({ comments, isLoading }: TrendingSectionProps) {
                   <span
                     className={cn(
                       'shrink-0 text-xs',
-                      comment.side === 'hot' ? 'text-orange-600' : 'text-sky-600'
+                      comment.side === 'hot' ? 'text-red-600' : 'text-sky-600'
                     )}
                   >
                     {comment.side === 'hot' ? '🔥' : '❄️'}
