@@ -152,14 +152,16 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
 
   return (
     <div className="rounded-2xl border border-border p-2">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <div className="flex rounded-full bg-muted p-0.5 shrink-0">
           <button
             type="button"
             onClick={() => setSide('hot')}
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              side === 'hot' ? 'bg-orange-500 text-white' : 'text-muted-foreground hover:text-foreground'
+              side === 'hot'
+                ? 'bg-orange-500 text-white'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             🔥 Hot
@@ -169,7 +171,9 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             onClick={() => setSide('not')}
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              side === 'not' ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
+              side === 'not'
+                ? 'bg-sky-500 text-white'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             ❄️ Not
@@ -177,14 +181,16 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         </div>
         <input
           type="text"
-          placeholder={side === 'hot' ? "What's making this a Hot take?" : "What's making this a Not take?"}
+          placeholder={
+            side === 'hot' ? "What's making this a Hot take?" : "What's making this a Not take?"
+          }
           value={body}
           onChange={(e) => setBody(e.target.value)}
           maxLength={280}
           onKeyDown={(e) => {
             if (e.key === 'Enter') openConfirm();
           }}
-          className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
+          className="order-3 w-full bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground sm:order-none sm:min-w-0 sm:flex-1 sm:w-auto"
         />
         <input
           ref={fileInputRef}
@@ -208,7 +214,11 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
       </div>
       {thumbnailUrl && (
         <div className="relative inline-block mt-2 ml-1">
-          <img src={thumbnailUrl} alt="Upload preview" className="size-14 rounded-lg object-cover border border-border" />
+          <img
+            src={thumbnailUrl}
+            alt="Upload preview"
+            className="size-14 rounded-lg object-cover border border-border"
+          />
           <button
             type="button"
             onClick={clearImage}
@@ -229,7 +239,9 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         username={username}
         onUsernameChange={setUsername}
         amountPaise={amountPaise}
-        onAmountChange={(next) => setAmountPaise(Math.min(MAX_CLAIM_PAISE, Math.max(BASE_PRICE_PAISE, next)))}
+        onAmountChange={(next) =>
+          setAmountPaise(Math.min(MAX_CLAIM_PAISE, Math.max(BASE_PRICE_PAISE, next)))
+        }
         comments={comments}
         isSubmitting={isSubmitting}
         onConfirm={submitComment}
