@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { HoverImage } from '@/components/hover-image';
 import { UpvoteConfirmModal } from '@/components/upvote-confirm-modal';
-import { formatINR } from '@/lib/constants';
+import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
 
@@ -27,10 +27,18 @@ function timeAgo(iso: string) {
   return `${days}d ago`;
 }
 
+const MAX_UPVOTE_PAISE = 100 * BASE_PRICE_PAISE; // ₹2,000 ceiling on the upvote stepper
+
 export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardProps) {
   const [showUpvoteConfirm, setShowUpvoteConfirm] = useState(false);
+  const [upvoteAmount, setUpvoteAmount] = useState(BASE_PRICE_PAISE);
   const [isUpvoting, setIsUpvoting] = useState(false);
   const isHot = comment.side === 'hot';
+
+  const openUpvoteConfirm = () => {
+    setUpvoteAmount(BASE_PRICE_PAISE);
+    setShowUpvoteConfirm(true);
+  };
 
   const confirmUpvote = async () => {
     setIsUpvoting(true);
@@ -38,7 +46,11 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
       const res = await fetch('/api/upvote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commentId: comment.id, movieSlug: comment.movieSlug }),
+        body: JSON.stringify({
+          commentId: comment.id,
+          movieSlug: comment.movieSlug,
+          amountPaise: upvoteAmount,
+        }),
       });
       if (res.ok) {
         setShowUpvoteConfirm(false);
@@ -104,7 +116,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           <div className="mt-2 flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setShowUpvoteConfirm(true)}
+              onClick={openUpvoteConfirm}
               disabled={isUpvoting}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50',
@@ -129,6 +141,8 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
         open={showUpvoteConfirm}
         onOpenChange={setShowUpvoteConfirm}
         comment={comment}
+        amountPaise={upvoteAmount}
+        onAmountChange={(next) => setUpvoteAmount(Math.min(MAX_UPVOTE_PAISE, Math.max(BASE_PRICE_PAISE, next)))}
         isSubmitting={isUpvoting}
         onConfirm={confirmUpvote}
       />
