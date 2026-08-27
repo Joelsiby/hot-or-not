@@ -2,11 +2,22 @@
 
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { cn } from '@/lib/utils';
 
 interface HoverImageProps {
   thumbnailUrl: string;
   fullUrl: string;
   alt: string;
+}
+
+const PREVIEW_MAX_PX = 448; // ~28rem ceiling, clamped down to fit the viewport below that
+const VIEWPORT_MARGIN = 12;
+
+interface PreviewPlacement {
+  left: number;
+  top: number;
+  direction: 'above' | 'below';
+  maxSize: number;
 }
 
 // Only the tiny inline thumbnail loads by default. The full-size image
@@ -17,16 +28,34 @@ interface HoverImageProps {
 //
 // The preview is portaled to <body> instead of rendered inline — the card
 // it lives in has `overflow-hidden` baked into ui/card.tsx, which would
-// otherwise clip anything positioned outside the card's own box.
+// otherwise clip anything positioned outside the card's own box. Position
+// and max size are computed from the live viewport on every hover, so the
+// preview can never run off a small (mobile) screen: it's capped to fit
+// horizontally, and flips to open downward instead of upward when there
+// isn't enough room above the thumbnail.
 export function HoverImage({ thumbnailUrl, fullUrl, alt }: HoverImageProps) {
   const [hovered, setHovered] = useState(false);
-  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(null);
+  const [placement, setPlacement] = useState<PreviewPlacement | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const handleEnter = () => {
     const rect = wrapperRef.current?.getBoundingClientRect();
-    if (rect) setAnchor({ top: rect.top, left: rect.left + rect.width / 2 });
+    if (!rect) return;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const maxSize = Math.min(PREVIEW_MAX_PX, vw - VIEWPORT_MARGIN * 2, vh - VIEWPORT_MARGIN * 2);
+    const half = maxSize / 2;
+
+    const centerX = rect.left + rect.width / 2;
+    const left = Math.min(Math.max(centerX, half + VIEWPORT_MARGIN), vw - half - VIEWPORT_MARGIN);
+
+    const fitsAbove = rect.top - maxSize - VIEWPORT_MARGIN > 0;
+    const direction: PreviewPlacement['direction'] = fitsAbove ? 'above' : 'below';
+    const top = fitsAbove ? rect.top - 12 : rect.bottom + 12;
+
+    setPlacement({ left, top, direction, maxSize });
     setHovered(true);
   };
 
@@ -63,18 +92,25 @@ export function HoverImage({ thumbnailUrl, fullUrl, alt }: HoverImageProps) {
         />
       </div>
       {hovered &&
-        anchor &&
+        placement &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-full animate-in fade-in zoom-in-90 slide-in-from-bottom-3 duration-200 ease-out [perspective:500px]"
-            style={{ top: anchor.top - 12, left: anchor.left }}
+            className={cn(
+              'pointer-events-none fixed z-50 -translate-x-1/2 animate-in fade-in zoom-in-90 duration-200 ease-out [perspective:500px]',
+              placement.direction === 'above'
+                ? '-translate-y-full slide-in-from-bottom-3'
+                : 'slide-in-from-top-3'
+            )}
+            style={{ top: placement.top, left: placement.left }}
           >
             <img
               src={fullUrl}
               alt={alt}
-              className="max-w-[26rem] max-h-[26rem] w-auto h-auto rounded-xl border border-border/60 bg-popover object-contain p-1 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.45)] transition-transform duration-150 ease-out will-change-transform"
+              className="w-auto h-auto rounded-xl border border-border/60 bg-popover object-contain p-1 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.45)] transition-transform duration-150 ease-out will-change-transform"
               style={{
+                maxWidth: placement.maxSize,
+                maxHeight: placement.maxSize,
                 transform: `rotateX(${tilt.y * -16}deg) rotateY(${tilt.x * 16}deg) translate3d(${tilt.x * 10}px, ${tilt.y * 10}px, 0)`,
               }}
             />
