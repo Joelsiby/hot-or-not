@@ -22,9 +22,12 @@ function timeAgo(iso: string) {
 export function LatestActivity({ comments, isLoading }: LatestActivityProps) {
   if (isLoading) return <LatestActivitySkeleton />;
 
-  const recent = [...comments]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+  // No fixed small cap — show as many as there are (natural height, no
+  // scroll), so the card fills out instead of stopping short at a
+  // handful of rows next to Trending's variable-height content.
+  const recent = [...comments].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   return (
     <Card>
