@@ -10,8 +10,11 @@ import { CommentComposer } from '@/components/comment-composer';
 import { CommentFeed } from '@/components/comment-feed';
 import { TrendingSection } from '@/components/trending-section';
 import { LatestActivity } from '@/components/latest-activity';
-import { movies, getMovie } from '@/lib/movies';
+import { LiveControversies } from '@/components/live-controversies';
+import { movies as staticMovies, type Movie } from '@/lib/movies';
 import { seedComments, type Comment } from '@/lib/comments-data';
+
+const FALLBACK_MOVIE: Movie = { slug: 'controversy', title: 'This one', posterEmoji: '🎬' };
 
 // Rows are ranked purely by amount raised (then recency) — Hot and Not
 // takes interleave in the same feed based on price and top bid.
@@ -22,21 +25,51 @@ function byAmountRaised(comments: Comment[]) {
 }
 
 export default function Home() {
-  const [selectedSlug, setSelectedSlug] = useState(movies[0].slug);
+  const [selectedSlug, setSelectedSlug] = useState(staticMovies[0].slug);
   const [comments, setComments] = useState<Comment[]>(() =>
-    byAmountRaised(seedComments.filter((c) => c.movieSlug === movies[0].slug))
+    byAmountRaised(seedComments.filter((c) => c.movieSlug === staticMovies[0].slug))
   );
   const [isLoading, setIsLoading] = useState(true);
+  // Static list merged with movies the live controversy bot auto-added to
+  // Supabase — refetched whenever the bot promotes a new one mid-session
+  // (see handleDebate below).
+  const [movieList, setMovieList] = useState<Movie[]>(staticMovies);
+
+  const loadMovies = useCallback(() => {
+    fetch('/api/movies')
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (Array.isArray(data.items) && data.items.length > 0) setMovieList(data.items);
+      })
+      .catch(() => {
+        // No Supabase configured (or the request failed) — static list already showing.
+      });
+  }, []);
+
+  useEffect(() => {
+    loadMovies();
+  }, [loadMovies]);
 
   // Land back on whichever movie the user was upvoting on after a Polar
   // checkout redirect (?movie=slug), instead of always resetting to Toxic.
   useEffect(() => {
     const movie = new URLSearchParams(window.location.search).get('movie');
-    if (movie && getMovie(movie)) {
+    if (movie) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing initial selection from the URL is this effect's whole purpose
       setSelectedSlug(movie);
     }
   }, []);
+
+  // A "Debate" click from the live controversies feed: the movie may have
+  // just been promoted and not be in movieList yet, so refetch before
+  // switching to it.
+  const handleDebate = useCallback(
+    (slug: string) => {
+      loadMovies();
+      setSelectedSlug(slug);
+    },
+    [loadMovies]
+  );
 
   const loadComments = useCallback((movieSlug: string) => {
     setIsLoading(true);
@@ -59,7 +92,7 @@ export default function Home() {
     loadComments(selectedSlug);
   }, [selectedSlug, loadComments]);
 
-  const movie = getMovie(selectedSlug)!;
+  const movie = movieList.find((m) => m.slug === selectedSlug) ?? FALLBACK_MOVIE;
   const hotPaise = comments.filter((c) => c.side === 'hot').reduce((sum, c) => sum + c.amountPaise, 0);
   const notPaise = comments.filter((c) => c.side === 'not').reduce((sum, c) => sum + c.amountPaise, 0);
 
@@ -78,6 +111,8 @@ export default function Home() {
               </p>
             </div>
 
+            <LiveControversies onDebate={handleDebate} className="mb-6" />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <TrendingSection comments={comments} isLoading={isLoading} />
               <LatestActivity comments={comments} isLoading={isLoading} />
@@ -89,7 +124,7 @@ export default function Home() {
 
             <CommentComposer movieSlug={selectedSlug} onPosted={() => loadComments(selectedSlug)} />
 
-            <MovieList selectedSlug={selectedSlug} onSelect={setSelectedSlug} className="mt-3 mb-6" />
+            <MovieList selectedSlug={selectedSlug} onSelect={setSelectedSlug} movies={movieList} className="mt-3 mb-6" />
 
             <CommentFeed comments={comments} />
           </div>

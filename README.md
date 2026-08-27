@@ -145,6 +145,39 @@ The mechanic is: read a movie's comment thread often (cheap, cached), write to i
 4. Flow: clicking the upvote arrow on a comment posts its ID to `POST /api/upvote` (`app/api/upvote/route.ts`), which creates a ₹100 Polar checkout and redirects the browser to Polar. On successful payment, the `order.paid` webhook (`app/api/webhooks/polar/route.ts`) increments that comment's `upvotes`/`amount_paise` in Supabase and busts the Redis cache for that movie.
 5. Use `POLAR_SERVER=sandbox` while testing — Polar's sandbox lets you complete checkouts without a real card.
 
+## Live controversy bot
+
+A background job that scrapes Reddit and entertainment news RSS feeds for movie backlash/controversy signals ("Movie X is getting backlash"), scores them, and shows them in a live "Live controversies" ticker at the top of the page. Strong hits (score ≥ 4) are auto-promoted into a debatable movie — click **Debate** on one and you're posting Hot/Not takes on it immediately, no manual setup.
+
+```
+lib/controversy-bot/
+  sources/reddit.ts   # public Reddit JSON endpoints (r/movies, r/boxoffice, r/Bollywood, ...) — no API key
+  sources/rss.ts       # Variety / Hollywood Reporter / Deadline / IndieWire feeds
+  detect.ts             # keyword scoring ("backlash", "boycott", "review bomb", ...) + best-effort title guess
+  ingest.ts             # orchestrates fetch -> score -> dedupe -> store -> auto-promote
+app/api/cron/fetch-controversies/route.ts   # triggers one ingest run, protected by CRON_SECRET
+app/api/controversies/route.ts               # GET: latest controversies (feed's initial load + polling fallback)
+app/api/movies/route.ts                      # GET: static movies merged with bot-promoted ones
+components/live-controversies.tsx            # the ticker — subscribes to Supabase Realtime
+.github/workflows/fetch-controversies.yml    # cron trigger, every 5 minutes
+```
+
+**Why Reddit + RSS, not X/Twitter** — X's API now requires a paid developer plan (~$200/mo minimum) for search access. Reddit's read endpoints are public and free; RSS needs no key at all. Both are strong signal for "movie getting backlash" — that's usually a Reddit thread or an entertainment-news headline before it's anywhere else.
+
+**Why GitHub Actions, not Vercel Cron** — Vercel's Hobby plan only runs cron jobs once a day, which isn't enough to feel live. GitHub Actions' free scheduler runs the trigger every 5 minutes instead; it just pings `app/api/cron/fetch-controversies`, which does the actual scraping.
+
+**Why it feels real-time without a websocket server** — new rows land in Supabase's `controversies`/`movies` tables (see `supabase/schema.sql`), and the browser is already subscribed to them via Supabase Realtime (`components/live-controversies.tsx`), so every connected client sees a new controversy the instant it's inserted — no polling, no custom streaming infra. If the Supabase anon key isn't configured, it falls back to polling `/api/controversies` every 30s instead of erroring.
+
+**Setup**
+
+1. Run the updated `supabase/schema.sql` (adds `movies` + `controversies` tables, RLS read policies, and enables Realtime on both — safe to re-run on an existing project).
+2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the anon/publishable key, safe for the browser — see `.env.example`) so the live feed can subscribe to Realtime.
+3. Set `CRON_SECRET` in your deployment's env vars, and add it plus `CONTROVERSY_CRON_URL` (`https://<your-domain>/api/cron/fetch-controversies`) as **GitHub repo secrets** (Settings → Secrets and variables → Actions) so the scheduled workflow can call it.
+4. Optionally set `REDDIT_USER_AGENT` to something descriptive — Reddit rate-limits generic user agents harder.
+5. Push to `main` (or run the workflow manually via **Actions → Fetch live controversies → Run workflow**) to confirm it's wired up.
+
+Tune `MIN_STORE_SCORE` / `PROMOTE_THRESHOLD` in `lib/controversy-bot/ingest.ts` if the feed is too noisy or too quiet, and the keyword/subreddit/feed lists in `detect.ts` / `sources/reddit.ts` / `sources/rss.ts` to fit your own movies.
+
 ## Deploying to Vercel
 
 1. Push this repo to GitHub and [import it into Vercel](https://vercel.com/new) — it's a standard Next.js app, so framework detection, build command, and the pnpm lockfile are all picked up automatically. No `vercel.json` needed.

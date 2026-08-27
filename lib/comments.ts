@@ -10,6 +10,8 @@ const cacheKey = (movieSlug: string) => `comments:v1:${movieSlug}`;
 // comment is posted or an upvote is paid, so it's never more than
 // CACHE_TTL_SECONDS stale even without that.
 export async function getComments(movieSlug: string): Promise<Comment[]> {
+  if (!redis) return fetchCommentsFromDatabase(movieSlug);
+
   const cached = await redis.get<Comment[]>(cacheKey(movieSlug));
   if (cached) return cached;
 
@@ -19,6 +21,7 @@ export async function getComments(movieSlug: string): Promise<Comment[]> {
 }
 
 export async function invalidateCommentsCache(movieSlug: string) {
+  if (!redis) return;
   await redis.del(cacheKey(movieSlug));
 }
 

@@ -35,3 +35,6 @@ next-env.d.ts
 
 # npm (project uses pnpm)
 package-lock.json
+
+# local scraped data (scripts/controversy_bot.py fallback when Supabase isn't configured)
+/data/

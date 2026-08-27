@@ -1,17 +1,20 @@
 'use client';
 
-import { movies } from '@/lib/movies';
+import { movies as staticMovies, type Movie } from '@/lib/movies';
 import { cn } from '@/lib/utils';
 
 interface MovieListProps {
   selectedSlug: string;
   onSelect: (slug: string) => void;
+  movies?: Movie[];
   className?: string;
 }
 
 // A small, quiet row of movie pills — picking one just switches which
-// movie's comment feed is showing.
-export function MovieList({ selectedSlug, onSelect, className }: MovieListProps) {
+// movie's comment feed is showing. Defaults to the static list; page.tsx
+// passes the static list merged with movies the live controversy bot
+// auto-added.
+export function MovieList({ selectedSlug, onSelect, movies = staticMovies, className }: MovieListProps) {
   return (
     <div className={cn('flex flex-wrap items-center gap-2 overflow-x-auto', className)}>
       {movies.map((movie) => {

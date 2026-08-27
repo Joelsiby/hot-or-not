@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getComments, invalidateCommentsCache } from '@/lib/comments';
-import { getMovie } from '@/lib/movies';
+import { getMovieAsync } from '@/lib/movies-server';
 
 export async function GET(request: NextRequest) {
   const movieSlug = request.nextUrl.searchParams.get('movie');
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const imageUrl: string | undefined = body?.imageUrl;
   const thumbnailUrl: string | undefined = body?.thumbnailUrl;
 
-  if (!movieSlug || !getMovie(movieSlug)) {
+  if (!movieSlug || !(await getMovieAsync(movieSlug))) {
     return NextResponse.json({ error: 'Unknown movie' }, { status: 400 });
   }
   if (side !== 'hot' && side !== 'not') {

@@ -1,0 +1,19 @@
+name: Fetch live controversies
+
+# Vercel's Hobby plan only allows cron jobs to run once a day, which isn't
+# often enough for the live controversies feed to feel live — so this runs
+# on GitHub Actions' free scheduler instead, every 5 minutes, and just
+# pings the deployed ingest endpoint (app/api/cron/fetch-controversies).
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger controversy ingest
+        run: |
+          curl -sf -X POST "${{ secrets.CONTROVERSY_CRON_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
