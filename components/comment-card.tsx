@@ -132,7 +132,12 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
               type="button"
               onClick={openUpvoteConfirm}
               disabled={isUpvoting}
-              className="inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors disabled:opacity-50"
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold transition-all disabled:opacity-50',
+                isHot
+                  ? 'border-red-500/30 bg-red-500/10 text-red-600 shadow-[0_0_8px_rgba(239,68,68,0.45)] hover:bg-red-500/20 hover:shadow-[0_0_14px_rgba(239,68,68,0.65)]'
+                  : 'border-sky-500/30 bg-sky-500/10 text-sky-600 shadow-[0_0_8px_rgba(59,130,246,0.45)] hover:bg-sky-500/20 hover:shadow-[0_0_14px_rgba(59,130,246,0.65)]'
+              )}
             >
               {isUpvoting ? (
                 <Loader2 className="size-3 animate-spin" />
