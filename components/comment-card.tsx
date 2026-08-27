@@ -76,25 +76,27 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
     >
       <div className="flex gap-3">
         <div className="flex shrink-0 flex-col items-center gap-2">
-          <div
-            className={cn(
-              'flex size-6 items-center justify-center rounded-full text-[11px] font-bold',
-              topPaid
-                ? isHot
-                  ? 'bg-red-500 text-white'
-                  : 'bg-blue-500 text-white'
-                : isHot
-                  ? 'bg-orange-500/10 text-orange-600'
-                  : 'bg-sky-500/10 text-sky-600'
-            )}
-          >
-            {rank}
+          <div className="flex items-center gap-1.5">
+            <div
+              className={cn(
+                'flex size-6 items-center justify-center rounded-full text-[11px] font-bold',
+                topPaid
+                  ? isHot
+                    ? 'bg-red-500 text-white'
+                    : 'bg-blue-500 text-white'
+                  : isHot
+                    ? 'bg-orange-500/10 text-orange-600'
+                    : 'bg-sky-500/10 text-sky-600'
+              )}
+            >
+              {rank}
+            </div>
+            <Avatar size="sm">
+              <AvatarFallback className={cn(isHot ? 'text-orange-600' : 'text-sky-600')}>
+                {comment.authorName.slice(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
-          <Avatar size="sm">
-            <AvatarFallback className={cn(isHot ? 'text-orange-600' : 'text-sky-600')}>
-              {comment.authorName.slice(0, 1).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
           {comment.imageUrl && comment.thumbnailUrl && (
             <HoverImage
               thumbnailUrl={comment.thumbnailUrl}

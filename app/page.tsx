@@ -61,8 +61,14 @@ export default function Home() {
   }, [selectedSlug, loadComments]);
 
   const movie = getMovie(selectedSlug)!;
-  const hotPaise = comments.filter((c) => c.side === 'hot').reduce((sum, c) => sum + c.amountPaise, 0);
-  const notPaise = comments.filter((c) => c.side === 'not').reduce((sum, c) => sum + c.amountPaise, 0);
+  const hotComments = comments.filter((c) => c.side === 'hot');
+  const notComments = comments.filter((c) => c.side === 'not');
+  const hotPaise = hotComments.reduce((sum, c) => sum + c.amountPaise, 0);
+  const notPaise = notComments.reduce((sum, c) => sum + c.amountPaise, 0);
+  // comments (and therefore hotComments/notComments) is already sorted by
+  // amount raised, so the first 10 per side are the top 10 by definition.
+  const hotTopNames = hotComments.slice(0, 10).map((c) => c.authorName);
+  const notTopNames = notComments.slice(0, 10).map((c) => c.authorName);
   // comments is already sorted by amount raised (byAmountRaised), so the
   // top take's price is just the first row — falls back to the base price
   // before anyone's posted anything yet.
@@ -89,7 +95,12 @@ export default function Home() {
             </div>
 
             <div className="mb-6">
-              <VoteMeter hotPaise={hotPaise} notPaise={notPaise} topAuthorName={comments[0]?.authorName} />
+              <VoteMeter
+                hotPaise={hotPaise}
+                notPaise={notPaise}
+                hotTopNames={hotTopNames}
+                notTopNames={notTopNames}
+              />
             </div>
 
             <CommentComposer

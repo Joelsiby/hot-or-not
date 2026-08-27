@@ -7,52 +7,66 @@ import { cn } from '@/lib/utils';
 interface VoteMeterProps {
   hotPaise: number;
   notPaise: number;
-  topAuthorName?: string;
+  hotTopNames?: string[];
+  notTopNames?: string[];
 }
 
 const ROTATE_MS = 5000;
 
+function pick(pool: string[], seed: number, fallback: string) {
+  const name = pool[seed % Math.max(pool.length, 1)]?.trim();
+  return name || fallback;
+}
+
 // 20 lines, cycling every 5s — every 5th (indexes 4, 9, 14, 19) is the
-// plain factual status; the rest are mockery/hype filler, some of which
-// roast whichever side is losing and some of which call out the top
-// commentator by name.
-function buildLines(winner: 'Hot' | 'Not' | null, loser: 'Hot' | 'Not' | null, topAuthorName?: string) {
+// plain factual status; the rest are mockery/hype filler pulling real
+// names from the top 10 commenters on each side (winnerNames/loserNames),
+// roasting whoever's behind and hyping up whoever's ahead.
+function buildLines(
+  winner: 'Hot' | 'Not' | null,
+  loser: 'Hot' | 'Not' | null,
+  winnerNames: string[],
+  loserNames: string[]
+) {
   const l = loser ?? 'Not';
   const status = winner ? `${winner} is winning` : "It's tied";
-  const author = topAuthorName?.trim() || 'somebody';
+  const loserName = (seed: number) => pick(loserNames, seed, `the ${l} crowd`);
+  const winnerName = (seed: number) => pick(winnerNames, seed, 'somebody');
 
   return [
-    `Somebody's ego is about to get destroyed 💀`,
-    `The ${l} fans are typing furiously right now`,
-    `This isn't a democracy, it's a wallet contest`,
-    `Imagine losing an argument to people with more disposable income`,
+    `${loserName(0)} ka ego ab girne wala hai 💀`,
+    `${loserName(1)} really said "let me embarrass myself" and did it`,
+    `Yeh democracy nahi hai bhai, wallet ka contest hai`,
+    `${loserName(2)}, bas kar de yaar, ho gaya khatam`,
     status,
-    `Bro really paid real money to defend a movie opinion 😭`,
-    `${author} is out here carrying this entire leaderboard`,
-    `The ${l} side needs an intervention, not another upvote`,
-    `Someone's UPI app is crying right now`,
+    `${winnerName(0)} ne "dekh mera jalwa" bola aur dikha bhi diya 😭`,
+    `${winnerName(1)} is out here carrying this entire leaderboard`,
+    `${loserName(3)} ko upvote nahi, therapy chahiye`,
+    `Someone tell ${loserName(4)} unka UPI app ro raha hai`,
     status,
     `This comment section has more drama than the movie itself`,
-    `Massive respect to ${author} for putting actual money where their mouth is`,
-    `${l} fans in absolute shambles rn`,
-    `Cope harder, ${l} squad`,
+    `Full respect ${winnerName(2)} ko, asli paisa laga diya`,
+    `${loserName(5)} ekdum dhoye gaye hain aaj`,
+    `Cope kar le zyada, ${loserName(6)}`,
     status,
-    `₹20 well spent on absolutely nothing productive`,
-    `${author} really said "watch me flex" and meant it`,
-    `The audacity of the ${l} side to still be showing up`,
-    `Someone go tell ${l} fans the ranking isn't changing tonight`,
+    `₹20 ekdum bekaar kharcha, ${loserName(7)}`,
+    `${winnerName(3)} really understood the assignment`,
+    `${loserName(8)} ki himmat dekho, abhi bhi yahin hai`,
+    `Kisi ko jaake bol do ${loserName(9)}, ranking nahi badlegi aaj raat`,
     status,
   ];
 }
 
-export function VoteMeter({ hotPaise, notPaise, topAuthorName }: VoteMeterProps) {
+export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = [] }: VoteMeterProps) {
   const total = hotPaise + notPaise;
   const hotPct = total === 0 ? 50 : Math.round((hotPaise / total) * 100);
   const isTied = hotPaise === notPaise;
   const winner = isTied ? null : hotPaise > notPaise ? 'Hot' : 'Not';
   const loser = isTied ? null : winner === 'Hot' ? 'Not' : 'Hot';
+  const winnerNames = winner === 'Not' ? notTopNames : hotTopNames;
+  const loserNames = winner === 'Not' ? hotTopNames : notTopNames;
 
-  const lines = buildLines(winner, loser, topAuthorName);
+  const lines = buildLines(winner, loser, winnerNames, loserNames);
   const [lineIndex, setLineIndex] = useState(0);
 
   useEffect(() => {

@@ -35,7 +35,7 @@ export async function rateLimit(
 
     if (current >= limit) {
       // Get the oldest entry to calculate reset time
-      const oldest = await redis.zrange(key, 0, 0, { withScores: true });
+      const oldest = (await redis.zrange(key, 0, 0, { withScores: true })) as Array<{ score: number }>;
       const resetTime = oldest.length > 0 ? Math.floor(oldest[0].score) + window : now + window;
 
       return {
