@@ -68,7 +68,10 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
       className={cn(
         'p-3 border-l-4',
         isHot ? 'border-l-orange-500 bg-orange-500/5' : 'border-l-sky-500 bg-sky-500/5',
-        topPaid && 'ring-2 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.45)]'
+        topPaid &&
+          (isHot
+            ? 'ring-2 ring-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+            : 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]')
       )}
     >
       <div className="flex gap-3">
@@ -76,7 +79,9 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           className={cn(
             'shrink-0 size-6 rounded-full flex items-center justify-center text-[11px] font-bold',
             topPaid
-              ? 'bg-amber-400 text-amber-950'
+              ? isHot
+                ? 'bg-red-500 text-white'
+                : 'bg-blue-500 text-white'
               : isHot
                 ? 'bg-orange-500/10 text-orange-600'
                 : 'bg-sky-500/10 text-sky-600'
