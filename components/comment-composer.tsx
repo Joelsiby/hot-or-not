@@ -202,8 +202,8 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
   };
 
   return (
-    <div className="composer-glow relative rounded-2xl border border-border bg-background p-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="composer-glow relative rounded-2xl border border-border bg-background p-3">
+      <div className="flex flex-wrap items-center gap-2 py-1">
         <div className="flex rounded-full bg-muted p-0.5 shrink-0">
           <button
             type="button"
@@ -241,7 +241,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
           onKeyDown={(e) => {
             if (e.key === 'Enter') openConfirm();
           }}
-          className="order-3 w-full bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground sm:order-none sm:min-w-0 sm:flex-1 sm:w-auto"
+          className="order-3 w-full bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground sm:order-none sm:min-w-0 sm:flex-1 sm:w-auto"
         />
         <input
           ref={fileInputRef}

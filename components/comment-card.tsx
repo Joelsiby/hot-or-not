@@ -118,7 +118,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
   return (
     <Card
       className={cn(
-        'p-3 border-l-4',
+        'p-4 border-l-4',
         isHot ? 'border-l-sky-500 bg-sky-500/5' : 'border-l-red-500 bg-red-500/5',
         topPaid &&
           (isHot
