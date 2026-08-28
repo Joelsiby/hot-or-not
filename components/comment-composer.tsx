@@ -163,7 +163,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         order_id: orderData.orderId,
         name: 'hate-it-or-love-it',
         description: `${side === 'hot' ? 'Love it' : 'Hate it'} take on ${movieSlug}`,
-        theme: { color: side === 'hot' ? '#0ea5e9' : '#ef4444' },
+        theme: { color: side === 'hot' ? '#10b981' : '#ef4444' },
         handler: async (response) => {
           try {
             const verifyRes = await fetch('/api/razorpay/verify', {
@@ -223,7 +223,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
               side === 'hot'
-                ? 'bg-sky-500 text-white'
+                ? 'bg-emerald-500 text-white'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >

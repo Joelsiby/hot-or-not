@@ -144,16 +144,16 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
               ? isTied
                 ? 'text-muted-foreground'
                 : winner === 'Love it'
-                  ? 'text-sky-600'
+                  ? 'text-emerald-600'
                   : 'text-red-600'
               : 'text-muted-foreground normal-case tracking-normal'
           )}
         >
           {currentLine}
         </span>
-        <span className="text-sky-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
+        <span className="text-emerald-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
       </div>
-      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sky-500/20">
+      <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
         <div
           className="h-full rounded-full bg-red-500 transition-all duration-500"
           style={{ width: `${100 - hotPct}%` }}
