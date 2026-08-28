@@ -16,9 +16,9 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: 'Hate or Hype',
+  title: 'Hate It or Love It',
   description:
-    'Pick a movie, argue for it in the Hype column or against it in the Hate column. Be the best critic or fan — upvotes start at ₹20.',
+    'Pick a movie, argue for it in the Love It column or against it in the Hate It column. Be the best critic or fan — upvotes start at ₹20.',
   referrer: 'strict-origin-when-cross-origin',
 };
 

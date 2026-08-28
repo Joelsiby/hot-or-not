@@ -50,7 +50,7 @@ export function LatestActivity({ comments, isLoading }: LatestActivityProps) {
                   </span>
                   <span className="font-medium shrink-0 max-w-24 truncate">{comment.authorName}</span>
                   <Badge variant="outline" className="text-xs shrink-0">
-                    {comment.side === 'hot' ? 'Hype' : 'Hate'}
+                    {comment.side === 'hot' ? 'Love it' : 'Hate it'}
                   </Badge>
                   <span className="text-xs text-muted-foreground min-w-0 flex-1 truncate">
                     {comment.body}

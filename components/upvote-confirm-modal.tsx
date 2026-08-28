@@ -84,7 +84,7 @@ export function UpvoteConfirmModal({
             <Link href="/terms" target="_blank" className="text-primary underline underline-offset-2">
               Terms of Service
             </Link>{' '}
-            of hate-or-hype
+            of hate-it-or-love-it
           </span>
         </label>
 

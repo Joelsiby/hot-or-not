@@ -161,8 +161,8 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
         amount: orderData.amountPaise,
         currency: orderData.currency,
         order_id: orderData.orderId,
-        name: 'hate-or-hype',
-        description: `${side === 'hot' ? 'Hype' : 'Hate'} take on ${movieSlug}`,
+        name: 'hate-it-or-love-it',
+        description: `${side === 'hot' ? 'Love it' : 'Hate it'} take on ${movieSlug}`,
         theme: { color: side === 'hot' ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {
           try {
@@ -215,7 +215,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            🔥 Hate
+            🔥 Hate it
           </button>
           <button
             type="button"
@@ -227,13 +227,13 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            ⚡ Hype
+            ⚡ Love it
           </button>
         </div>
         <input
           type="text"
           placeholder={
-            side === 'hot' ? "What's making this a Hype take?" : "What's making this a Hate take?"
+            side === 'hot' ? "What's making you love it?" : "What's making you hate it?"
           }
           value={body}
           onChange={(e) => setBody(e.target.value)}

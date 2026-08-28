@@ -84,7 +84,7 @@ export function PostConfirmModal({
               !isHot ? 'bg-red-500 text-white' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            🔥 Hate
+            🔥 Hate it
           </button>
           <button
             type="button"
@@ -94,7 +94,7 @@ export function PostConfirmModal({
               isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            ⚡ Hype
+            ⚡ Love it
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export function PostConfirmModal({
             <Link href="/terms" target="_blank" className="text-primary underline underline-offset-2">
               Terms of Service
             </Link>{' '}
-            of hate-or-hype
+            of hate-it-or-love-it
           </span>
         </label>
 

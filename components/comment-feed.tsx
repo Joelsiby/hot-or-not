@@ -20,7 +20,7 @@ interface CommentFeedProps {
 }
 
 // One merged feed for both sides, ranked by amount raised (then recency) —
-// Hype and Hate takes sit in the same rows, distinguished only by color, with
+// Love It and Hate It takes sit in the same rows, distinguished only by color, with
 // whichever comment has raised the most glowing at the top. Paginated 10
 // at a time; rank numbers stay global (page 2 starts at #11), not reset
 // per page.

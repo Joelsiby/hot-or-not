@@ -80,7 +80,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
         amount: orderData.amountPaise,
         currency: orderData.currency,
         order_id: orderData.orderId,
-        name: 'hate-or-hype',
+        name: 'hate-it-or-love-it',
         description: `Upvote on ${comment.movieSlug}`,
         theme: { color: isHot ? '#0ea5e9' : '#ef4444' },
         handler: async (response) => {
@@ -172,7 +172,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
           <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
             <span className={cn('inline-flex items-center gap-1 font-medium', isHot ? 'text-sky-600' : 'text-red-600')}>
               {isHot ? <Zap className="size-3" /> : <Flame className="size-3" />}
-              {isHot ? 'Hype' : 'Hate'}
+              {isHot ? 'Love it' : 'Hate it'}
             </span>
             <span aria-hidden>·</span>
             <span suppressHydrationWarning>{timeAgo(comment.createdAt)}</span>

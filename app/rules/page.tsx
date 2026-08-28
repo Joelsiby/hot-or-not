@@ -12,11 +12,11 @@ export default function RulesPage() {
             <h1 className="text-4xl font-bold tracking-tight">Rules</h1>
             <div className="mt-8 space-y-8">
               <section>
-                <h2 className="text-xl font-semibold mb-3">Hype vs Hate</h2>
+                <h2 className="text-xl font-semibold mb-3">Love It vs Hate It</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
                   <li>
-                    Every movie has two columns: <span className="text-sky-600 font-medium">⚡ Hype</span> (in favour) and{' '}
-                    <span className="text-red-600 font-medium">🔥 Hate</span> (critical).
+                    Every movie has two columns: <span className="text-sky-600 font-medium">⚡ Love it</span> (in favour) and{' '}
+                    <span className="text-red-600 font-medium">🔥 Hate it</span> (critical).
                   </li>
                   <li>
                     Comments from both columns rank together in one feed, sorted purely by how much
@@ -26,7 +26,7 @@ export default function RulesPage() {
                     The meter above the feed totals every rupee paid on each side (posts and upvotes
                     together) so you can see who&apos;s actually winning, live.
                   </li>
-                  <li>Pick a movie from the list to switch to its own Hype vs Hate thread.</li>
+                  <li>Pick a movie from the list to switch to its own Love It vs Hate It thread.</li>
                 </ul>
               </section>
 

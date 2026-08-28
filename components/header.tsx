@@ -25,7 +25,7 @@ export function Header() {
             </Button>
           )}
           <Link href="/" className="font-bold text-xl">
-            hate-or-hype
+            hate-it-or-love-it
           </Link>
         </div>
         <nav className={cn('flex items-center gap-4', isMobile && 'hidden')}>

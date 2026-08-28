@@ -25,12 +25,13 @@ function pick(pool: string[], seed: number, fallback: string) {
 // leans on Indian movie-Twitter/review-culture slang (FDFS, mass entry,
 // box office, review bombing, pan-India, housefull, hit-ya-flop, etc.).
 function buildLines(
-  winner: 'Hype' | 'Hate' | null,
-  loser: 'Hype' | 'Hate' | null,
+  winner: 'Love it' | 'Hate it' | null,
+  loser: 'Love it' | 'Hate it' | null,
   winnerNames: string[],
   loserNames: string[]
 ) {
-  const l = loser ?? 'Hate';
+  const l = loser ?? 'Hate it';
+  const hashtagWord = l.replace(/\s+/g, ''); // hashtag-safe, no space
   const status = winner ? `${winner} is winning` : "It's tied";
   const loserName = (seed: number) => pick(loserNames, seed, `the ${l} crowd`);
   const winnerName = (seed: number) => pick(winnerNames, seed, 'somebody');
@@ -61,7 +62,7 @@ function buildLines(
     `Public verdict: ${loserName(12)} ka paisa dooba`,
     `${winnerName(4)} ne toh box office hi tod diya`,
     status,
-    `Twitter pe #${l}IsOut trending kar raha hai`,
+    `Twitter pe #${hashtagWord}IsOut trending kar raha hai`,
     `${loserName(13)}, interval tak hi tha dum`,
     `Critics vs ${loserName(14)} — dono match nahi kar rahe`,
     `${winnerName(5)} ka mass entry dekh ke goosebumps aa gaye`,
@@ -113,10 +114,10 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   const total = hotPaise + notPaise;
   const hotPct = total === 0 ? 50 : Math.round((hotPaise / total) * 100);
   const isTied = hotPaise === notPaise;
-  const winner = isTied ? null : hotPaise > notPaise ? 'Hype' : 'Hate';
-  const loser = isTied ? null : winner === 'Hype' ? 'Hate' : 'Hype';
-  const winnerNames = winner === 'Hate' ? notTopNames : hotTopNames;
-  const loserNames = winner === 'Hate' ? hotTopNames : notTopNames;
+  const winner = isTied ? null : hotPaise > notPaise ? 'Love it' : 'Hate it';
+  const loser = isTied ? null : winner === 'Love it' ? 'Hate it' : 'Love it';
+  const winnerNames = winner === 'Hate it' ? notTopNames : hotTopNames;
+  const loserNames = winner === 'Hate it' ? hotTopNames : notTopNames;
 
   const lines = buildLines(winner, loser, winnerNames, loserNames);
   const [lineIndex, setLineIndex] = useState(0);
@@ -142,7 +143,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
             isStatusLine
               ? isTied
                 ? 'text-muted-foreground'
-                : winner === 'Hype'
+                : winner === 'Love it'
                   ? 'text-sky-600'
                   : 'text-red-600'
               : 'text-muted-foreground normal-case tracking-normal'
