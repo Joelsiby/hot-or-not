@@ -59,6 +59,7 @@ components/
   latest-activity.tsx    # most recent comments
   mobile-layout.tsx, app-sidebar.tsx
   umami-analytics.tsx
+  clarity-analytics.tsx
 lib/
   movies.ts              # static movie list (slug, title, emoji)
   comments-data.ts       # types + static seed data (used until Supabase is configured)
@@ -118,6 +119,7 @@ cp .env.example .env.local
 | `RAZORPAY_WEBHOOK_SECRET` | No | Optional safety net for a payment that succeeds but the tab closes before the client-side verify call fires. Not required for the normal flow. |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | No | Enables [Umami](https://umami.is) analytics. Leave unset to disable tracking entirely (default). |
 | `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | No | Only needed for a self-hosted Umami instance; defaults to Umami Cloud's script. |
+| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | No | Enables [Microsoft Clarity](https://clarity.microsoft.com) — session recordings, heatmaps, rage/dead-click detection. Leave unset to disable (default). |
 
 Until the Supabase/Redis variables are set, the app runs fine off the static seed data in `lib/comments-data.ts`, and posting/upvoting will surface the API's error response — nothing crashes, it just isn't wired to a real backend yet. Without the Razorpay variables set, posting and upvoting fail at the checkout step with a clear error, since both require creating a real order.
 
@@ -160,3 +162,9 @@ Analytics are powered by [Umami](https://umami.is), a privacy-friendly, open-sou
 1. Create a site in [Umami Cloud](https://cloud.umami.is) (or your self-hosted instance) and copy its website ID.
 2. Set `NEXT_PUBLIC_UMAMI_WEBSITE_ID` (and `NEXT_PUBLIC_UMAMI_SCRIPT_URL` if self-hosting) in your environment.
 3. Redeploy — pageviews will start showing up in your Umami dashboard.
+
+[Microsoft Clarity](https://clarity.microsoft.com) is a second, separate analytics tool — free, and focused on *how* people use the site rather than raw pageview counts: session recordings, heatmaps, and automatic rage-click/dead-click/JS-error detection. `components/clarity-analytics.tsx` only initializes when `NEXT_PUBLIC_CLARITY_PROJECT_ID` is set.
+
+1. Create a project at [clarity.microsoft.com](https://clarity.microsoft.com) and copy the Project ID from Settings > Overview.
+2. Set `NEXT_PUBLIC_CLARITY_PROJECT_ID` in your environment.
+3. Redeploy — recordings and heatmaps start showing up in your Clarity dashboard within a few minutes of the first visit.

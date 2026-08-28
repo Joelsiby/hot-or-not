@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.7.0
         version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@microsoft/clarity':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@supabase/supabase-js':
         specifier: ^2.112.3
         version: 2.112.3
@@ -526,6 +529,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@microsoft/clarity@1.0.2':
+    resolution: {integrity: sha512-9EZYROFpJxEGmQpHvUFqvD3ZJ7QQSqnibYSWmS+1xusoZfG1QQ1/Al9yVBBc11DWMbJrs1pe1hLT273it/skJg==}
 
   '@modelcontextprotocol/sdk@1.30.0':
     resolution: {integrity: sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==}
@@ -3594,6 +3600,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@microsoft/clarity@1.0.2': {}
 
   '@modelcontextprotocol/sdk@1.30.0(supports-color@7.2.0)(zod@3.25.76)':
     dependencies:

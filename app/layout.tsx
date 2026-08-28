@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
+import { ClarityAnalytics } from '@/components/clarity-analytics';
 import { CurrencyProvider } from '@/components/currency-provider';
 import { detectCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
@@ -48,6 +49,7 @@ export default async function RootLayout({
           <CurrencyProvider currency={currency}>{children}</CurrencyProvider>
         </ThemeProvider>
         <UmamiAnalytics />
+        <ClarityAnalytics />
       </body>
     </html>
   );
