@@ -117,6 +117,19 @@ $$ language plpgsql;
 
 grant execute on function increment_comment_upvote(uuid, integer) to service_role;
 
+-- One row per active browser session (a random id the client generates
+-- once and keeps in localStorage), upserted on every heartbeat. "Online"
+-- = a row whose last_seen is recent — see app/api/presence/route.ts.
+-- Stale rows are cheap to keep around; the route opportunistically
+-- deletes anything older than a day on every call instead of needing a
+-- cron job.
+create table if not exists presence (
+  session_id text primary key,
+  last_seen timestamptz not null default now()
+);
+
+grant select, insert, update, delete on presence to service_role;
+
 -- Also create a public storage bucket named `comment-images` (Storage tab
 -- in the Supabase dashboard, "Public bucket" on) for full-size uploads —
 -- thumbnails are stored inline on the row above.

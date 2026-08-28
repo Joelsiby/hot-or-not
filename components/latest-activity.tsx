@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LatestActivitySkeleton } from '@/components/latest-activity-skeleton';
+import { usePresence } from '@/hooks/use-presence';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
 
@@ -20,33 +20,8 @@ function timeAgo(iso: string) {
   return `${hours} hour${hours === 1 ? '' : 's'} ago`;
 }
 
-const MIN_ONLINE = 15;
-
-// There's no real presence tracking here — this is a believable, gently
-// drifting count that never dips below MIN_ONLINE. Starts at the floor
-// (matching what the server renders) so hydration never mismatches, then
-// randomizes and nudges itself client-side only, after mount.
-function useOnlineCount() {
-  const [online, setOnline] = useState(MIN_ONLINE);
-
-  useEffect(() => {
-    // Randomizing on mount is the whole point here — it has to happen
-    // client-only (Math.random() during render would mismatch the
-    // server-rendered MIN_ONLINE), so there's no way to fold this into
-    // render itself.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOnline(MIN_ONLINE + Math.floor(Math.random() * 35)); // 15-49
-    const timer = setInterval(() => {
-      setOnline((prev) => Math.max(MIN_ONLINE, prev + Math.floor(Math.random() * 7) - 3)); // nudge -3..+3
-    }, 12_000);
-    return () => clearInterval(timer);
-  }, []);
-
-  return online;
-}
-
 export function LatestActivity({ comments, isLoading }: LatestActivityProps) {
-  const online = useOnlineCount();
+  const online = usePresence();
 
   if (isLoading) return <LatestActivitySkeleton />;
 

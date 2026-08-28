@@ -117,3 +117,11 @@ export async function rateLimitUpvoting(identifier: string): Promise<RateLimitRe
   // 20 upvotes per 5 minutes per user/IP
   return rateLimit(identifier, 20, 5 * 60 * 1000);
 }
+
+// Specific rate limit for the presence heartbeat — legitimate use is
+// ~3 calls/minute per browser (one every ~20s), so this leaves plenty of
+// headroom while still capping abuse.
+export async function rateLimitPresence(identifier: string): Promise<RateLimitResult> {
+  // 30 heartbeats per 5 minutes per user/IP
+  return rateLimit(identifier, 30, 5 * 60 * 1000);
+}
