@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { formatINR } from '@/lib/constants';
+import { useCurrency } from '@/components/currency-provider';
+import { formatMoney } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
 interface VoteMeterProps {
@@ -111,6 +112,7 @@ function buildLines(
 }
 
 export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = [] }: VoteMeterProps) {
+  const currency = useCurrency();
   const total = hotPaise + notPaise;
   const hotPct = total === 0 ? 50 : Math.round((hotPaise / total) * 100);
   const isTied = hotPaise === notPaise;
@@ -135,7 +137,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
   return (
     <div className="rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-3 text-sm font-semibold">
-        <span className="text-red-600 shrink-0">🔥 {formatINR(notPaise)}</span>
+        <span className="text-red-600 shrink-0">🔥 {formatMoney(notPaise, currency)}</span>
         <span
           key={lineIndex}
           className={cn(
@@ -151,7 +153,7 @@ export function VoteMeter({ hotPaise, notPaise, hotTopNames = [], notTopNames = 
         >
           {currentLine}
         </span>
-        <span className="text-sky-600 shrink-0">⚡ {formatINR(hotPaise)}</span>
+        <span className="text-sky-600 shrink-0">⚡ {formatMoney(hotPaise, currency)}</span>
       </div>
       <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sky-500/20">
         <div

@@ -13,7 +13,9 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { PriceStepper } from '@/components/price-stepper';
-import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
+import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { useCurrency } from '@/components/currency-provider';
+import { formatMoney } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
 
@@ -38,6 +40,7 @@ export function UpvoteConfirmModal({
   error,
   onConfirm,
 }: UpvoteConfirmModalProps) {
+  const currency = useCurrency();
   const [agreed, setAgreed] = useState(false);
   const isHot = comment.side === 'hot';
 
@@ -53,7 +56,7 @@ export function UpvoteConfirmModal({
         <DialogHeader>
           <DialogTitle>Confirm this upvote</DialogTitle>
           <DialogDescription>
-            Every ₹{BASE_PRICE_PAISE / 100} pushes this take up the feed — stack more to push it further.
+            Every {formatMoney(BASE_PRICE_PAISE, currency)} pushes this take up the feed — stack more to push it further.
           </DialogDescription>
         </DialogHeader>
 
@@ -73,7 +76,7 @@ export function UpvoteConfirmModal({
             <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               New total
             </div>
-            <div className="mt-1 text-lg font-bold">{formatINR(comment.amountPaise + amountPaise)}</div>
+            <div className="mt-1 text-lg font-bold">{formatMoney(comment.amountPaise + amountPaise, currency)}</div>
           </div>
         </div>
 
@@ -95,7 +98,7 @@ export function UpvoteConfirmModal({
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={!agreed || isSubmitting}>
-            {isSubmitting ? 'Opening checkout…' : `Pay ${formatINR(amountPaise)}`}
+            {isSubmitting ? 'Opening checkout…' : `Pay ${formatMoney(amountPaise, currency)}`}
           </Button>
         </DialogFooter>
       </DialogContent>

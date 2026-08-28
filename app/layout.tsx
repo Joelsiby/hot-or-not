@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Inter } from 'next/font/google';
+import { headers } from 'next/headers';
 
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
+import { CurrencyProvider } from '@/components/currency-provider';
+import { detectCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getSiteUrl } from '@/lib/site-url';
 
@@ -22,11 +25,18 @@ export const metadata: Metadata = {
   referrer: 'strict-origin-when-cross-origin',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Vercel sets this header on every production request; absent in local
+  // dev, where detectCurrency() falls back to India/INR. Detected once
+  // here, server-side, and handed down via context — see
+  // components/currency-provider.tsx.
+  const headerList = await headers();
+  const currency = detectCurrency(headerList.get('x-vercel-ip-country'));
+
   return (
     <html
       lang="en"
@@ -34,7 +44,9 @@ export default function RootLayout({
       className={cn('antialiased', fontMono.variable, 'font-sans', inter.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CurrencyProvider currency={currency}>{children}</CurrencyProvider>
+        </ThemeProvider>
         <UmamiAnalytics />
       </body>
     </html>

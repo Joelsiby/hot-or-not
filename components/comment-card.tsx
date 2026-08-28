@@ -7,7 +7,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { HoverImage } from '@/components/hover-image';
 import { UpvoteConfirmModal } from '@/components/upvote-confirm-modal';
 import { loadRazorpayScript } from '@/lib/load-razorpay-script';
-import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
+import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { useCurrency } from '@/components/currency-provider';
+import { formatMoney } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
 
@@ -31,6 +33,7 @@ function timeAgo(iso: string) {
 const MAX_UPVOTE_PAISE = 100 * BASE_PRICE_PAISE; // ₹2,000 ceiling on the upvote stepper
 
 export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardProps) {
+  const currency = useCurrency();
   const [showUpvoteConfirm, setShowUpvoteConfirm] = useState(false);
   const [upvoteAmount, setUpvoteAmount] = useState(BASE_PRICE_PAISE);
   const [isUpvoting, setIsUpvoting] = useState(false);
@@ -163,7 +166,7 @@ export function CommentCard({ comment, rank, topPaid, onUpvoted }: CommentCardPr
                 isHot ? 'text-sky-600' : 'text-red-600'
               )}
             >
-              {formatINR(comment.amountPaise)}
+              {formatMoney(comment.amountPaise, currency)}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-0.5 whitespace-pre-wrap break-words">

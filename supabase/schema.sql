@@ -37,6 +37,13 @@ create table if not exists upvote_payments (
   created_at timestamptz not null default now()
 );
 
+-- Non-India visitors are actually charged in USD (see lib/currency.ts) —
+-- amount_paise above always stays the INR-equivalent value used for
+-- ranking, regardless of what currency was really charged. These two
+-- columns record what Razorpay actually billed, for reference only.
+alter table upvote_payments add column if not exists charged_currency text not null default 'INR';
+alter table upvote_payments add column if not exists charged_amount_minor integer not null default 0;
+
 -- Migration for a database created before the Razorpay switch (was
 -- Polar's polar_checkout_id) — safe to re-run.
 do $$
@@ -73,6 +80,11 @@ create table if not exists comment_payments (
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
   created_at timestamptz not null default now()
 );
+
+-- Same as upvote_payments above — the currency actually charged, kept
+-- separate from amount_paise which stays INR-equivalent for ranking.
+alter table comment_payments add column if not exists charged_currency text not null default 'INR';
+alter table comment_payments add column if not exists charged_amount_minor integer not null default 0;
 
 create index if not exists comment_payments_status_idx on comment_payments (status);
 

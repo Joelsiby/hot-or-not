@@ -13,7 +13,9 @@ import { TrendingSection } from '@/components/trending-section';
 import { LatestActivity } from '@/components/latest-activity';
 import { movies, getMovie } from '@/lib/movies';
 import { seedComments, type Comment } from '@/lib/comments-data';
-import { BASE_PRICE_PAISE, formatINR } from '@/lib/constants';
+import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { useCurrency } from '@/components/currency-provider';
+import { formatMoney } from '@/lib/currency';
 
 // Rows are ranked purely by amount raised (then recency) — Hot and Not
 // takes interleave in the same feed based on price and top bid.
@@ -24,6 +26,7 @@ function byAmountRaised(comments: Comment[]) {
 }
 
 export default function Home() {
+  const currency = useCurrency();
   const [selectedSlug, setSelectedSlug] = useState(movies[0].slug);
   const [comments, setComments] = useState<Comment[]>(() =>
     byAmountRaised(seedComments.filter((c) => c.movieSlug === movies[0].slug))
@@ -128,7 +131,7 @@ export default function Home() {
                 {movie.title}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Be the best critic or fan — the top take is going for {formatINR(topPricePaise)}.
+                Be the best critic or fan — the top take is going for {formatMoney(topPricePaise, currency)}.
               </p>
             </div>
 

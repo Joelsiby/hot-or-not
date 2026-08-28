@@ -14,6 +14,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PriceStepper } from '@/components/price-stepper';
+import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { useCurrency } from '@/components/currency-provider';
+import { formatMoney } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type { Comment, Side } from '@/lib/comments-data';
 
@@ -55,6 +58,7 @@ export function PostConfirmModal({
   error,
   onConfirm,
 }: PostConfirmModalProps) {
+  const currency = useCurrency();
   const [agreed, setAgreed] = useState(false);
   const isHot = side === 'hot';
   const rank = previewRank(comments, amountPaise);
@@ -109,7 +113,7 @@ export function PostConfirmModal({
           </div>
         </div>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          Base price is ₹20 — pay more to claim a higher spot. Someone else can still outbid you later.
+          Base price is {formatMoney(BASE_PRICE_PAISE, currency)} — pay more to claim a higher spot. Someone else can still outbid you later.
         </p>
 
         <p className="mt-3 text-sm text-muted-foreground line-clamp-3">&ldquo;{body}&rdquo;</p>

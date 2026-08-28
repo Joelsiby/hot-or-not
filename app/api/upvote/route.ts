@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { razorpay } from '@/lib/razorpay';
 import { BASE_PRICE_PAISE } from '@/lib/constants';
+import { detectCurrency, paiseToUsdCents } from '@/lib/currency';
 import { rateLimitUpvoting, getClientIdentifier } from '@/lib/rate-limit';
 import { limitRequestSize } from '@/lib/request-limiter';
 
@@ -75,11 +76,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
   }
 
+  // Determined server-side from the request's own geo header — never
+  // trust a client-supplied currency for what actually gets charged.
+  // amountPaise (the ranking value written to comments) never changes;
+  // only what Razorpay bills the visitor does.
+  const currency = detectCurrency(request.headers.get('x-vercel-ip-country'));
+  const chargeAmount = currency === 'USD' ? paiseToUsdCents(amountPaise) : amountPaise;
+
   let order;
   try {
     order = await razorpay.orders.create({
-      amount: amountPaise, // Razorpay amounts are paise too — no conversion needed
-      currency: 'INR',
+      amount: chargeAmount,
+      currency,
       // Razorpay caps receipt at 56 chars — the full UUID + prefix + full
       // timestamp ran over that by one, so this only keeps the comment
       // id's last 12 chars plus a base36 timestamp for uniqueness.
@@ -94,6 +102,8 @@ export async function POST(request: NextRequest) {
     comment_id: sanitizedCommentId,
     movie_slug: sanitizedMovieSlug,
     amount_paise: amountPaise,
+    charged_currency: currency,
+    charged_amount_minor: chargeAmount,
     razorpay_order_id: order.id,
     status: 'pending',
   });
@@ -105,8 +115,8 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       orderId: order.id,
-      amountPaise,
-      currency: 'INR',
+      amountPaise: chargeAmount,
+      currency,
       keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     },
     {
