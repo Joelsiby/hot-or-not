@@ -15,7 +15,7 @@ export default function RulesPage() {
                 <h2 className="text-xl font-semibold mb-3">Love It vs Hate It</h2>
                 <ul className="space-y-2 text-muted-foreground list-disc list-inside">
                   <li>
-                    Every movie has two columns: <span className="text-emerald-600 font-medium">⚡ Love it</span> (in favour) and{' '}
+                    Every movie has two columns: <span className="text-sky-600 font-medium">⚡ Love it</span> (in favour) and{' '}
                     <span className="text-red-600 font-medium">🔥 Hate it</span> (critical).
                   </li>
                   <li>

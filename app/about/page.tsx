@@ -13,7 +13,7 @@ export default function AboutPage() {
             <div className="mt-8 space-y-6 text-muted-foreground">
               <p>
                 Hate It or Love It is where movie opinions actually cost something. Pick a movie, then put
-                your money where your mouth is — argue for it under <span className="text-emerald-600 font-medium">⚡ Love it</span>, or tear it apart
+                your money where your mouth is — argue for it under <span className="text-sky-600 font-medium">⚡ Love it</span>, or tear it apart
                 under <span className="text-red-600 font-medium">🔥 Hate it</span>. No ads, no API keys, no revenue share — just fans versus
                 critics, settled in rupees instead of replies.
               </p>

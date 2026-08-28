@@ -91,7 +91,7 @@ export function PostConfirmModal({
             onClick={() => onSideChange('hot')}
             className={cn(
               'flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-              isHot ? 'bg-emerald-500 text-white' : 'text-muted-foreground hover:text-foreground'
+              isHot ? 'bg-sky-500 text-white' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             ⚡ Love it
