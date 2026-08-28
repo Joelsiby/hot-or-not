@@ -144,12 +144,17 @@
 .composer-glow::before {
   content: "";
   position: absolute;
-  inset: -3px;
+  inset: 0;
   border-radius: inherit;
   z-index: -1;
   background: linear-gradient(90deg, #ef4444, #f59e0b, #0ea5e9, #ef4444);
   background-size: 300% 300%;
   animation: composer-glow-shift 6s ease infinite;
-  filter: blur(10px);
-  opacity: 0.55;
+  /* A small inset with a much bigger blur than before — the previous
+     version (larger inset, small blur) kept most of the shape's
+     brightness intact and only softened the outermost few pixels, which
+     read as a visible rectangle rather than a diffuse glow. This blurs
+     enough to fully dissolve the rectangular silhouette. */
+  filter: blur(24px);
+  opacity: 0.5;
 }
