@@ -13,13 +13,16 @@ export interface Movie {
 // selection on load.
 export const movies: Movie[] = [
   { slug: 'toxic', title: 'Toxic', posterEmoji: '🔥', bannerUrl: '/banners/toxic-2026.jpg' },
-  // Ramayana: Part 1 (Ranbir Kapoor, Yash, Sai Pallavi) — Nitesh Tiwari's
-  // two-part epic, releasing Diwali 2026.
-  { slug: 'ramayana-part-1', title: 'Ramayana: Part 1', posterEmoji: '🏹', bannerUrl: '/banners/ramayana-part-1.jpg' },
+  // Mirzapur: The Movie (Pankaj Tripathi, Ali Fazal, Divyenndu) — releasing
+  // September 4, 2026.
+  { slug: 'mirzapur-the-movie', title: 'Mirzapur: The Movie', posterEmoji: '🏙️', bannerUrl: '/banners/mirzapur-the-movie.jpg' },
   // King (Shah Rukh Khan) — releasing December 24, 2026.
   { slug: 'king', title: 'King', posterEmoji: '👑', bannerUrl: '/banners/king-2026.jpg' },
   // "Dacoit" here is Dacoit: A Love Story (2026).
   { slug: 'dacoit', title: 'Dacoit', posterEmoji: '🔫', bannerUrl: '/banners/dacoit.jpg' },
+  // Bethlehem Kudumba Unit (Nivin Pauly, Mamitha Baiju) — Malayalam
+  // rom-com, released August 21, 2026.
+  { slug: 'bethlehem-kudumba-unit', title: 'Bethlehem Kudumba Unit', posterEmoji: '💒', bannerUrl: '/banners/bethlehem-kudumba-unit.jpg' },
 ];
 
 export function getMovie(slug: string): Movie | undefined {
