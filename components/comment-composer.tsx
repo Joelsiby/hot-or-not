@@ -202,7 +202,7 @@ export function CommentComposer({ movieSlug, comments, onPosted }: CommentCompos
   };
 
   return (
-    <div className="rounded-2xl border border-border p-2">
+    <div className="composer-glow relative rounded-2xl border border-border bg-background p-2">
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex rounded-full bg-muted p-0.5 shrink-0">
           <button

@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Flame } from 'lucide-react';
+import { Flame, ChevronDown } from 'lucide-react';
 import { TrendingSkeleton } from '@/components/trending-skeleton';
+import { useDefaultCollapsed } from '@/hooks/use-default-collapsed';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/comments-data';
 
@@ -26,6 +27,7 @@ interface TrendingSectionProps {
 // fetched on demand per movieSlug (see lib/movie-controversy-search.ts),
 // not a separate card.
 export function TrendingSection({ comments, isLoading, movieSlug }: TrendingSectionProps) {
+  const { open, toggle } = useDefaultCollapsed();
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(true);
 
@@ -38,7 +40,9 @@ export function TrendingSection({ comments, isLoading, movieSlug }: TrendingSect
       .then((res) => (res.ok ? res.json() : { items: [] }))
       .then((data) => {
         if (!cancelled && Array.isArray(data.items)) {
-          setNewsItems(data.items.map((item: { id: string; title: string; sourceUrl: string }) => item));
+          setNewsItems(
+            data.items.map((item: { id: string; title: string; sourceUrl: string }) => item)
+          );
         }
       })
       .catch(() => {
@@ -60,64 +64,89 @@ export function TrendingSection({ comments, isLoading, movieSlug }: TrendingSect
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <Flame className="h-4 w-4 text-muted-foreground" />
-          Trending right now
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {top3.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No comments yet.</p>
-        ) : (
-          <div className="space-y-2">
-            {top3.map((comment) => (
-              <div key={comment.id} className="flex items-center justify-between text-sm min-w-0 gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className={cn(
-                      'shrink-0 text-xs',
-                      comment.side === 'hot' ? 'text-sky-600' : 'text-red-600'
-                    )}
-                  >
-                    {comment.side === 'hot' ? '⚡' : '🔥'}
-                  </span>
-                  <span className="font-medium truncate">{comment.body}</span>
-                </div>
-                <Badge variant="secondary" className="text-xs flex-shrink-0">
-                  {comment.upvotes} upvotes
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {(newsLoading || newsItems.length > 0) && (
-          <div className="mt-3 pt-3 border-t border-border">
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">In the news</p>
-            {newsLoading ? (
-              <div className="space-y-1.5">
-                <Skeleton className="h-3.5 w-full" />
-                <Skeleton className="h-3.5 w-4/5" />
-              </div>
-            ) : (
-              <ul className="space-y-1.5">
-                {newsItems.map((item) => (
-                  <li key={item.id}>
-                    <a
-                      href={item.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-2"
-                    >
-                      {item.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+        <button
+          type="button"
+          onClick={toggle}
+          className="flex w-full items-center justify-between gap-2 text-left"
+          aria-expanded={open}
+        >
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Flame className="h-4 w-4 text-muted-foreground" />
+            Trending right now
+          </CardTitle>
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 text-muted-foreground transition-transform duration-200 shrink-0',
+              open && 'rotate-180'
             )}
-          </div>
+          />
+        </button>
+      </CardHeader>
+      <div
+        className={cn(
+          'grid transition-all duration-300 ease-in-out',
+          open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         )}
-      </CardContent>
+      >
+        <div className="overflow-hidden">
+          <CardContent>
+            {top3.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No comments yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {top3.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="flex items-center justify-between text-sm min-w-0 gap-2"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={cn(
+                          'shrink-0 text-xs',
+                          comment.side === 'hot' ? 'text-sky-600' : 'text-red-600'
+                        )}
+                      >
+                        {comment.side === 'hot' ? '⚡' : '🔥'}
+                      </span>
+                      <span className="font-medium truncate">{comment.body}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs flex-shrink-0">
+                      {comment.upvotes} upvotes
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {(newsLoading || newsItems.length > 0) && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <p className="text-xs font-medium text-muted-foreground mb-1.5">In the news</p>
+                {newsLoading ? (
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-3.5 w-full" />
+                    <Skeleton className="h-3.5 w-4/5" />
+                  </div>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {newsItems.map((item) => (
+                      <li key={item.id}>
+                        <a
+                          href={item.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-2"
+                        >
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </div>
+      </div>
     </Card>
   );
 }

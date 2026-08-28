@@ -130,3 +130,26 @@
     @apply font-sans;
     }
 }
+
+/* Moving gradient glow behind the comment composer — a blurred, oversized
+   gradient layer that scrolls its own background-position in a loop.
+   Lives behind the composer via z-index, not on it, so the actual
+   input/buttons stay crisp. */
+@keyframes composer-glow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.composer-glow::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  z-index: -1;
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #0ea5e9, #ef4444);
+  background-size: 300% 300%;
+  animation: composer-glow-shift 6s ease infinite;
+  filter: blur(10px);
+  opacity: 0.55;
+}
